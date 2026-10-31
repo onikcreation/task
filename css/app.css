@@ -127,3 +127,45 @@ html,body{margin:0;padding:0;max-width:100%;overflow-x:hidden}body{background:va
 
 @media(max-width:520px){.toolbar{grid-template-columns:repeat(3,minmax(0,1fr))}.task-card-actions{width:100%;justify-content:flex-end}.list-actions .export-button{display:none}}
 
+/* Mobile regression guard — keep the legacy composition inside the viewport. */
+@media(max-width:899px){
+  html,body{width:100%;max-width:100%;overflow-x:hidden}
+  .topbar,.legacy-shell,.page-shell,#tasksWorkspace,.summary-card,.saved-tabs,.toolbar,.list-section,.task-list,.insight-section,.insight-head,.dashboard-grid,.chart-card,.activity-list{min-width:0;max-width:100%}
+  .page-shell{width:100%;padding-left:14px;padding-right:14px;overflow:hidden}
+  .global-search{left:14px;right:14px;max-width:calc(100% - 28px)}
+  .summary-card{grid-template-columns:minmax(94px,30%) minmax(0,1fr);gap:0 10px;padding:14px 12px;overflow:hidden}
+  .summary-heading{grid-row:1/3;padding-right:10px}
+  .summary-heading h1{font-size:12px;line-height:1.25}
+  .summary-heading .eyebrow{font-size:10px}
+  .summary-total{font-size:36px;line-height:1}
+  .summary-grid{grid-column:2;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;margin:0;min-width:0}
+  .summary-grid .metric{min-width:0;padding:3px 2px;border:0;border-left:1px solid var(--line);border-radius:0;background:transparent;text-align:center}
+  .summary-grid .metric:first-child{border-left:0}
+  .summary-grid .metric:nth-child(4){display:none}
+  .summary-grid .metric strong{font-size:18px;line-height:1.15}
+  .summary-grid .metric span{display:block;max-width:100%;font-size:9px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .progress-track{grid-column:2;margin-top:9px}
+  .saved-tabs{grid-template-columns:repeat(3,minmax(0,1fr))!important;overflow:hidden}
+  .saved-tabs .tab{white-space:nowrap}
+  .toolbar{overflow:hidden}
+  .toolbar select{min-width:0}
+  .task-card,.task-card>div,.task-card h3,.task-card p{min-width:0;max-width:100%;overflow-wrap:anywhere}
+  .task-card-actions{max-width:100%}
+  .bottom-nav{overflow:hidden}
+  .bottom-nav button{width:100%;max-width:100%;padding:0 2px;overflow:hidden}
+  .bottom-nav button>span,.bottom-nav button.new>span{display:block;width:100%;max-width:100%;height:auto;margin:0;background:none;box-shadow:none;color:inherit;font-size:10px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .bar-row{grid-template-columns:minmax(70px,105px) minmax(0,1fr) auto;min-width:0}
+}
+
+@media(max-width:370px){
+  .page-shell{padding-left:10px;padding-right:10px}
+  .global-search{left:10px;right:10px;max-width:calc(100% - 20px)}
+  .summary-card{grid-template-columns:minmax(88px,29%) minmax(0,1fr);padding-left:10px;padding-right:10px;gap:0 8px}
+  .summary-total{font-size:32px}
+  .summary-grid .metric strong{font-size:17px}
+  .saved-tabs .tab{font-size:10.5px;padding:0 2px}
+  .toolbar{gap:5px;padding:7px}
+  .toolbar label{display:flex;flex-direction:column;align-items:stretch;gap:4px;grid-template-columns:none}
+  .toolbar select{font-size:11px;padding:0 5px}
+}
+

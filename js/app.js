@@ -1,7 +1,7 @@
-import {loadConfig} from './config.js?v=20261031-17';
-import {createRepository} from './data/repository.js?v=20261031-17';
-import {createBrowserSupabase} from './supabase-client.js?v=20261031-17';
-import {buildTaskWorkbook} from './xlsx-export.js?v=20261031-17';
+import {loadConfig} from './config.js?v=20261101-18';
+import {createRepository} from './data/repository.js?v=20261101-18';
+import {createBrowserSupabase} from './supabase-client.js?v=20261101-18';
+import {buildTaskWorkbook} from './xlsx-export.js?v=20261101-18';
 
 const $=id=>document.getElementById(id);
 const state={workspace:'tasks',view:'pending',specialId:'',search:'',status:'',date:'all',dateFrom:'',dateTo:'',group:'',sort:'newest',offset:0,items:[],total:0,hasMore:false};
