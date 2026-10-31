@@ -19,7 +19,7 @@ export function createDemoRepository(){
   return {
     mode:'demo',
     async getSpecialViews(){return [{id:'our',name:'Our Task',color:'#7C3AED',active:true,tag:true,condition:{taskType:['Our Task']}},{id:'liton',name:'Liton Vai',color:'#EA580C',active:true,tag:true,condition:{person:['Liton Vai']}}]},
-    async getDashboard(){const active=SAMPLE;const grouped=key=>Object.fromEntries([...new Set(active.map(row=>row[key]||'Unspecified'))].map(value=>[value,active.filter(row=>(row[key]||'Unspecified')===value).length]));return {total:active.length,open:active.filter(row=>['Pending','Task Added'].includes(row.status)).length,done:active.filter(row=>row.status==='Done').length,deleted:0,byStatus:grouped('status'),byPriority:grouped('priority'),byPlatform:grouped('platform'),byMonth:[]}},
+    async getDashboard(){const active=SAMPLE,now=new Date(),grouped=key=>Object.fromEntries([...new Set(active.map(row=>row[key]||'Unspecified'))].map(value=>[value,active.filter(row=>(row[key]||'Unspecified')===value).length])),byDay=Array.from({length:now.getDate()},(_,index)=>{const day=index+1;return {label:String(day),date:`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`,count:active.filter(row=>{const date=new Date(row.createdAt);return date.getFullYear()===now.getFullYear()&&date.getMonth()===now.getMonth()&&date.getDate()===day}).length}});return {total:active.length,open:active.filter(row=>['Pending','Task Added'].includes(row.status)).length,done:active.filter(row=>row.status==='Done').length,deleted:0,byStatus:grouped('status'),byPriority:grouped('priority'),byPlatform:grouped('platform'),byMonth:[],byDay}},
     async getActivity(){return SAMPLE.slice(0,6).map((task,index)=>({id:index,kind:'task',action:'demo_activity',target:task.id,actor:'Demo',message:task.title,at:task.createdAt}))},
     async getSummary(){
       const pending=SAMPLE.filter(t=>['Pending','Task Added'].includes(t.status));
@@ -33,9 +33,13 @@ export function createDemoRepository(){
       if(query.specialView){const condition=query.specialView.condition||query.specialView.cond||{};const list=value=>Array.isArray(value)?value:[value];if(condition.taskType||condition.type)rows=rows.filter(t=>list(condition.taskType||condition.type).includes(t.taskType));if(condition.person)rows=rows.filter(t=>list(condition.person).some(person=>t.approvedBy.includes(person)));if(condition.status)rows=rows.filter(t=>list(condition.status).includes(t.status));if(condition.priority)rows=rows.filter(t=>list(condition.priority).includes(t.priority));if(condition.platform)rows=rows.filter(t=>list(condition.platform).includes(t.platform))}
       if(query.status)rows=rows.filter(t=>t.status===query.status);
       if(query.search)rows=rows.filter(t=>text(t).includes(query.search.toLowerCase()));
-      if(query.date==='today')rows=rows.filter(t=>NOW-new Date(t.createdAt).getTime()<day);
-      if(query.date==='week')rows=rows.filter(t=>NOW-new Date(t.createdAt).getTime()<7*day);
-      if(query.date==='month')rows=rows.filter(t=>NOW-new Date(t.createdAt).getTime()<31*day);
+      const now=new Date(),start=new Date(now),end=new Date(now);start.setHours(0,0,0,0);end.setHours(23,59,59,999);
+      if(query.date==='today')rows=rows.filter(t=>new Date(t.createdAt)>=start&&new Date(t.createdAt)<=end);
+      if(query.date==='yesterday'){start.setDate(start.getDate()-1);end.setDate(end.getDate()-1);rows=rows.filter(t=>new Date(t.createdAt)>=start&&new Date(t.createdAt)<=end)}
+      if(query.date==='week'){start.setDate(start.getDate()-((start.getDay()+1)%7));rows=rows.filter(t=>new Date(t.createdAt)>=start&&new Date(t.createdAt)<=end)}
+      if(query.date==='month'){start.setDate(1);rows=rows.filter(t=>new Date(t.createdAt)>=start&&new Date(t.createdAt)<=end)}
+      if(query.date==='lastmonth'){start.setMonth(start.getMonth()-1,1);end.setDate(0);end.setHours(23,59,59,999);rows=rows.filter(t=>new Date(t.createdAt)>=start&&new Date(t.createdAt)<=end)}
+      if(query.date==='custom'){if(query.dateFrom)rows=rows.filter(t=>new Date(t.createdAt)>=new Date(`${query.dateFrom}T00:00:00`));if(query.dateTo)rows=rows.filter(t=>new Date(t.createdAt)<=new Date(`${query.dateTo}T23:59:59.999`))}
       const priorities=['Urgent','Top','Medium','Regular','Low'];
       rows.sort(query.sort==='oldest'?(a,b)=>new Date(a.createdAt)-new Date(b.createdAt):query.sort==='priority'?(a,b)=>priorities.indexOf(a.priority)-priorities.indexOf(b.priority):(a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
       const offset=query.offset||0,limit=query.limit||8;

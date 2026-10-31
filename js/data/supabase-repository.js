@@ -36,7 +36,15 @@ export function createSupabaseRepository(client){
     async getOptions(){const {data,error}=await client.from('app_settings').select('value').eq('key','lists').single();fail(error);const value=data?.value||{};return {priority:names(value.priority),status:names(value.status),taskType:names(value.type),platform:names(value.platform),department:names(value.dept),person:names(value.person),actionStatus:names(value.action),progress:names(value.progress),module:names(value.module)}},
     async getPermissions(){const actions=['add','edit','status','delete','export','settings'];const values=await Promise.all(actions.map(async action=>{const {data,error}=await client.rpc('has_permission',{requested_action:action});fail(error);return [action,Boolean(data)]}));return Object.fromEntries(values)},
     async getSpecialViews(){const {data,error}=await client.from('app_settings').select('key,value').in('key',['views','specialViews']);fail(error);const rows=data||[],preferred=rows.find(row=>row.key==='views')||rows.find(row=>row.key==='specialViews');return Array.isArray(preferred?.value)?preferred.value:[]},
-    async getDashboard(){const {data,error}=await client.rpc('get_task_dashboard');fail(error);return data||{}},
+    async getDashboard(){
+      const now=new Date(),start=new Date(now.getFullYear(),now.getMonth(),1),[dashboard,rows]=await Promise.all([
+        client.rpc('get_task_dashboard'),
+        client.from('tasks').select('created_at').eq('is_deleted',false).gte('created_at',start.toISOString()).lte('created_at',now.toISOString())
+      ]);fail(dashboard.error);fail(rows.error);
+      const counts=new Map();for(const row of rows.data||[]){const date=new Date(row.created_at);if(!Number.isNaN(date.getTime()))counts.set(date.getDate(),(counts.get(date.getDate())||0)+1)}
+      const byDay=Array.from({length:now.getDate()},(_,index)=>({label:String(index+1),date:`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(index+1).padStart(2,'0')}`,count:counts.get(index+1)||0}));
+      return {...(dashboard.data||{}),byDay};
+    },
     async getActivity(includeAdmin=false){
       const taskRequest=client.from('task_logs').select('id,source_task_id,actor_name,action,message,changes,created_at,recorded_at').order('recorded_at',{ascending:false}).limit(100);
       const requests=[taskRequest];if(includeAdmin)requests.push(client.from('admin_audit_logs').select('id,actor_email,action,target,changes,created_at').order('created_at',{ascending:false}).limit(100));
@@ -65,8 +73,13 @@ export function createSupabaseRepository(client){
       if(query.specialView)request=applySpecialView(request,query.specialView);
       if(query.status)request=request.eq('status',query.status);
       const search=cleanSearch(query.search);if(search)request=request.or(`source_task_id.ilike.%${search}%,task_no.ilike.%${search}%,title.ilike.%${search}%,details.ilike.%${search}%,menu_path.ilike.%${search}%,reg_pin.ilike.%${search}%`);
-      const now=new Date();if(query.date==='today')now.setHours(0,0,0,0);else if(query.date==='week')now.setDate(now.getDate()-7);else if(query.date==='month')now.setMonth(now.getMonth()-1);
-      if(query.date&&query.date!=='all')request=request.gte('created_at',now.toISOString());
+      const now=new Date(),start=new Date(now),end=new Date(now);start.setHours(0,0,0,0);end.setHours(23,59,59,999);
+      if(query.date==='today')request=request.gte('created_at',start.toISOString()).lte('created_at',end.toISOString());
+      else if(query.date==='yesterday'){start.setDate(start.getDate()-1);end.setDate(end.getDate()-1);request=request.gte('created_at',start.toISOString()).lte('created_at',end.toISOString())}
+      else if(query.date==='week'){start.setDate(start.getDate()-((start.getDay()+1)%7));request=request.gte('created_at',start.toISOString()).lte('created_at',end.toISOString())}
+      else if(query.date==='month'){start.setDate(1);request=request.gte('created_at',start.toISOString()).lte('created_at',end.toISOString())}
+      else if(query.date==='lastmonth'){start.setMonth(start.getMonth()-1,1);end.setDate(0);end.setHours(23,59,59,999);request=request.gte('created_at',start.toISOString()).lte('created_at',end.toISOString())}
+      else if(query.date==='custom'){if(query.dateFrom)request=request.gte('created_at',new Date(`${query.dateFrom}T00:00:00`).toISOString());if(query.dateTo)request=request.lte('created_at',new Date(`${query.dateTo}T23:59:59.999`).toISOString())}
       if(query.sort==='oldest')request=request.order('created_at',{ascending:true,nullsFirst:false});
       else if(query.sort==='priority')request=request.order('priority',{ascending:true}).order('created_at',{ascending:false,nullsFirst:false});
       else request=request.order('created_at',{ascending:false,nullsFirst:false}).order('recorded_at',{ascending:false});

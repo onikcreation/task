@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#4338ca">
   <title>UUU Task Tracker — Supabase Preview</title>
-  <link rel="stylesheet" href="./css/app.css?v=20261031-12">
+  <link rel="stylesheet" href="./css/app.css?v=20261031-15">
 </head>
 <body>
   <a class="skip-link" href="#taskList">কাজের তালিকায় যান</a>
@@ -55,9 +55,17 @@
     </nav>
 
     <section class="toolbar" aria-label="তালিকা নিয়ন্ত্রণ">
-      <label><span>Entry Date</span><select id="dateFilter"><option value="all">All Time</option><option value="today">Today</option><option value="week">This Week</option><option value="month">This Month</option></select></label>
+      <label><span>Entry Date</span><select id="dateFilter"><option value="all">All Time</option><option value="today">Today</option><option value="yesterday">Yesterday</option><option value="week">This Week</option><option value="month">This Month</option><option value="lastmonth">Last Month</option><option value="custom">Date Range…</option></select></label>
+      <label><span>Group By</span><select id="groupSelect"><option value="">None</option><option value="taskType">Task Type</option><option value="priority">Priority</option><option value="platform">Platform</option></select></label>
       <label><span>Status</span><select id="statusFilter"><option value="">All Status</option></select></label>
       <label><span>Sort</span><select id="sortSelect"><option value="newest">Newest</option><option value="oldest">Oldest</option><option value="priority">Priority</option></select></label>
+    </section>
+
+    <section class="date-range-bar" id="dateRangeBar" aria-label="Custom date range" hidden>
+      <label><span>From</span><input id="dateFrom" type="date"></label>
+      <label><span>To</span><input id="dateTo" type="date"></label>
+      <span class="date-range-count" id="dateRangeCount">০টি task</span>
+      <button class="cancel-button compact" id="dateRangeClear" type="button">Clear</button>
     </section>
 
     <section class="list-section" aria-labelledby="listTitle">
@@ -75,6 +83,7 @@
         <article class="chart-card"><h2>Priority</h2><div class="bar-chart" id="priorityChart"></div></article>
         <article class="chart-card"><h2>Platform</h2><div class="bar-chart" id="platformChart"></div></article>
         <article class="chart-card"><h2>Last 12 months</h2><div class="bar-chart" id="monthChart"></div></article>
+        <article class="chart-card chart-card-wide"><h2>এই মাসে প্রতিদিনের এন্ট্রি</h2><div class="bar-chart day-chart" id="dayChart"></div></article>
       </div>
     </section>
 
@@ -130,7 +139,7 @@
         <label class="wide"><span>Details *</span><textarea id="taskDetails" rows="6" required placeholder="Task-এর বিস্তারিত লিখুন"></textarea></label>
         <label><span>Issued Department</span><input id="taskDepartment" type="text" list="departmentOptions"></label>
         <label><span>Issued Person</span><input id="taskPerson" type="text" list="personOptions"></label>
-        <label class="wide"><span>Approved By</span><input id="taskApprovedBy" type="text" placeholder="একাধিক হলে কমা দিয়ে লিখুন"></label>
+        <label class="wide"><span>Approved By</span><input id="taskApprovedBy" type="hidden"><div class="approved-picker"><input id="taskApprovedSearch" type="search" placeholder="নাম খুঁজুন…" autocomplete="off"><div class="approved-options" id="taskApprovedOptions"></div></div></label>
         <label><span>Task No. (Teams)</span><input id="taskNumber" type="text" placeholder="#69xxx"></label>
         <label><span>Reg / Pin / TPin</span><input id="taskRegPin" type="text"></label>
         <label><span>Action Status</span><select id="taskActionStatus"></select></label>
@@ -162,6 +171,32 @@
       <h2 id="deleteConfirmTitle">Task soft-delete করবেন?</h2>
       <p id="deleteConfirmText">Taskটি Deleted তালিকায় যাবে এবং পরে Restore করা যাবে।</p>
       <footer class="confirm-actions"><button class="cancel-button" id="deleteCancelButton" type="button">Cancel</button><button class="danger-button" id="deleteConfirmButton" type="button">Delete Task</button></footer>
+    </section>
+  </dialog>
+
+  <dialog class="confirm-dialog" id="exportConfirmDialog" aria-labelledby="exportConfirmTitle">
+    <section class="confirm-card">
+      <p class="eyebrow">Excel export</p>
+      <h2 id="exportConfirmTitle">বর্তমান তালিকা Download করবেন?</h2>
+      <dl class="export-summary" id="exportSummary"></dl>
+      <footer class="confirm-actions"><button class="cancel-button" id="exportCancelButton" type="button">Cancel</button><button class="auth-submit export-confirm" id="exportConfirmButton" type="button">Download XLSX</button></footer>
+    </section>
+  </dialog>
+
+  <dialog class="theme-dialog" id="themeDialog" aria-labelledby="themeDialogTitle">
+    <section class="theme-panel">
+      <header class="task-editor-head"><div><p class="eyebrow">Appearance</p><h2 id="themeDialogTitle">Theme & Layout</h2></div><button class="dialog-close" id="themeClose" type="button" aria-label="বন্ধ করুন">×</button></header>
+      <div class="theme-grid">
+        <label><span>Mode</span><select id="themeMode"><option value="light">Light</option><option value="dark">Dark</option><option value="system">System</option></select></label>
+        <label><span>Accent</span><select id="themeAccent"><option value="indigo">Indigo</option><option value="violet">Violet</option><option value="blue">Blue</option><option value="teal">Teal</option></select></label>
+        <label><span>Task color</span><select id="themeTint"><option value="line">Left line</option><option value="soft">Soft background</option><option value="frame">Color frame</option><option value="urgent">Urgent only</option></select></label>
+        <label><span>Density</span><select id="themeDensity"><option value="comfortable">Comfortable</option><option value="compact">Compact</option></select></label>
+        <label><span>Text size</span><select id="themeSize"><option value="normal">Normal</option><option value="large">Large</option></select></label>
+        <label><span>Group style</span><select id="themeGroup"><option value="line">Heading line</option><option value="panel">Separate panel</option></select></label>
+        <label><span>Mobile layout</span><select id="themeMobile"><option value="summary">Summary</option><option value="tiles">Legacy tiles</option></select></label>
+        <label><span>Card marker</span><select id="themeMarker"><option value="priority">Priority</option><option value="status">Status</option><option value="off">Off</option></select></label>
+      </div>
+      <footer class="task-editor-actions"><button class="cancel-button" id="themeReset" type="button">Default-এ ফেরত</button><button class="auth-submit save-task" id="themeDone" type="button">Done</button></footer>
     </section>
   </dialog>
 
@@ -198,7 +233,7 @@
   </dialog>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script type="module" src="./js/app.js?v=20261031-13"></script>
+  <script type="module" src="./js/app.js?v=20261031-15"></script>
 </body>
 </html>
 
