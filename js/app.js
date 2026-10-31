@@ -1,7 +1,7 @@
-import {loadConfig} from './config.js?v=20261031-11';
-import {createRepository} from './data/repository.js?v=20261031-11';
-import {createBrowserSupabase} from './supabase-client.js?v=20261031-11';
-import {buildTaskWorkbook} from './xlsx-export.js?v=20261031-11';
+import {loadConfig} from './config.js?v=20261031-13';
+import {createRepository} from './data/repository.js?v=20261031-13';
+import {createBrowserSupabase} from './supabase-client.js?v=20261031-13';
+import {buildTaskWorkbook} from './xlsx-export.js?v=20261031-13';
 
 const $=id=>document.getElementById(id);
 const state={workspace:'tasks',view:'pending',specialId:'',search:'',status:'',date:'all',sort:'newest',offset:0,items:[],total:0,hasMore:false};
@@ -59,12 +59,13 @@ function updateAccount(){
   const name=profile?.display_name||session?.user?.email?.split('@')[0]||'Account',initial=name.trim().charAt(0).toUpperCase()||'A';
   $('accountButton').textContent=initial;$('accountInitial').textContent=initial;$('accountName').textContent=name;$('accountEmail').textContent=session?.user?.email||'';$('accountRole').textContent=profile?.role||'Viewer';$('connectionBadge').textContent=`Supabase • ${profile?.role||'Viewer'}`;
 }
+function updatePublicAccount(){$('connectionBadge').textContent='Supabase • Public';$('accountButton').textContent='↪';$('accountButton').title='অনুমোদিত user sign in';$('accountButton').setAttribute('aria-label','অনুমোদিত user sign in')}
 
 function setOptions(id,values,selected=''){$(id).innerHTML=(values||[]).map(value=>`<option${value===selected?' selected':''}>${esc(value)}</option>`).join('')}
 function setOptionalOptions(id,values,selected=''){$(id).innerHTML='<option value="">— None —</option>'+(values||[]).map(value=>`<option${value===selected?' selected':''}>${esc(value)}</option>`).join('');$(id).value=selected||''}
 function configureWriteUi(){
   const canAdd=Boolean(permissions.add);$('newTaskButton').disabled=!canAdd;$('bottomNewButton').disabled=!canAdd;$('newTaskButton').title=canAdd?'নতুন task তৈরি করুন':'আপনার add permission নেই';
-  $('adminButton').hidden=!permissions.settings;
+  $('adminButton').hidden=!permissions.settings;const adminActivityOption=$('activityFilter').querySelector('option[value="admin"]');adminActivityOption.hidden=!permissions.settings;if(!permissions.settings&&$('activityFilter').value==='admin')$('activityFilter').value='all';
   $('exportButton').hidden=!permissions.export;
   $('deletedTab').hidden=!permissions.delete;document.querySelector('.saved-tabs').classList.toggle('admin-tabs',Boolean(permissions.delete));
   setOptions('taskPriority',formOptions.priority);setOptions('taskStatus',formOptions.status);setOptions('taskType',formOptions.taskType);setOptions('taskPlatform',formOptions.platform);
@@ -149,6 +150,7 @@ async function exportXlsx(){
   if(!permissions.export){toast('Export permission নেই');return}const button=$('exportButton');button.disabled=true;button.textContent='Export হচ্ছে…';try{const specialView=specialViews.find(view=>view.id===state.specialId),rows=[];let offset=0,total=0;do{const result=await repo.listTasks({...state,specialView,offset,limit:1000});rows.push(...result.items);offset=rows.length;total=result.total}while(offset<total);const blob=buildTaskWorkbook(rows),url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download=`uuu-task-tracker-${new Date().toISOString().slice(0,10)}.xlsx`;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast(`${rows.length.toLocaleString('bn-BD')}টি task Excel export হয়েছে`)}catch(error){toast(error.message||'Excel export করা যায়নি')}finally{button.disabled=false;button.textContent='↓ Export XLSX'}
 }
 
+async function activatePublic(){session=null;profile=null;repo=await createRepository(config,supabase);permissions={add:false,edit:false,status:false,delete:false,export:true,settings:false};[formOptions,specialViews]=await Promise.all([repo.getOptions(),repo.getSpecialViews().then(rows=>rows.map(normalizeView))]);updatePublicAccount();configureWriteUi();renderSummary(await repo.getSummary());await load(true);if(state.workspace==='dashboard')await loadDashboard();if(state.workspace==='activity')await loadActivity();closeAuth()}
 async function activateLive(currentSession){session=currentSession;repo=await createRepository(config,supabase);[profile,permissions,formOptions,specialViews]=await Promise.all([repo.getProfile(),repo.getPermissions(),repo.getOptions(),repo.getSpecialViews().then(rows=>rows.map(normalizeView))]);updateAccount();configureWriteUi();renderSummary(await repo.getSummary());await load(true);closeAuth()}
 function openAuth(showAccount=Boolean(session)){$('loginForm').hidden=showAccount;$('accountPanel').hidden=!showAccount;$('authMessage').textContent='';$('authMessage').classList.remove('error');if(!$('authDialog').open)$('authDialog').showModal();if(!showAccount)setTimeout(()=>$('loginEmail').focus(),50)}
 function closeAuth(){if($('authDialog').open)$('authDialog').close()}
@@ -159,7 +161,7 @@ async function sendMagicLink(event){
   catch(error){$('authMessage').textContent=error.message||'Magic link পাঠানো যায়নি।';$('authMessage').classList.add('error')}finally{button.disabled=false}
 }
 
-async function signOut(){$('logoutButton').disabled=true;const {error}=await supabase.auth.signOut();$('logoutButton').disabled=false;if(error){toast(error.message);return}session=null;renderSignedOut();closeAuth()}
+async function signOut(){$('logoutButton').disabled=true;const {error}=await supabase.auth.signOut();$('logoutButton').disabled=false;if(error){toast(error.message);return}session=null;await activatePublic();closeAuth()}
 function resetHome(){state.view='pending';state.specialId='';state.search='';state.status='';state.date='all';state.sort='newest';$('searchInput').value='';$('statusFilter').value='';$('dateFilter').value='all';$('sortSelect').value='newest';renderSpecialTabs();document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.view==='pending'));switchWorkspace('tasks');load(true)}
 function toggleTheme(){document.body.classList.toggle('dark');localStorage.setItem('uuuTT.theme',document.body.classList.contains('dark')?'dark':'light')}
 
@@ -180,8 +182,8 @@ async function start(){
   config=await loadConfig();bindEvents();if(localStorage.getItem('uuuTT.theme')==='dark')document.body.classList.add('dark');
   if(config.dataMode!=='supabase'||!config.supabaseUrl||!config.supabasePublishableKey){repo=await createRepository(config);permissions={export:true};specialViews=(await repo.getSpecialViews()).map(normalizeView);$('connectionBadge').textContent='Demo mode';configureWriteUi();renderSummary(await repo.getSummary());await load(true);return}
   supabase=await createBrowserSupabase(config);const {data:{session:currentSession},error}=await supabase.auth.getSession();if(error)throw error;
-  const listener=supabase.auth.onAuthStateChange((event,nextSession)=>{if(event==='SIGNED_IN'&&nextSession)setTimeout(()=>activateLive(nextSession).catch(err=>{renderSignedOut();openAuth(false);$('authMessage').textContent=err.message;$('authMessage').classList.add('error')}),0);if(event==='SIGNED_OUT'){session=null;renderSignedOut()}});authSubscription=listener.data.subscription;
-  if(currentSession)await activateLive(currentSession);else{renderSignedOut();openAuth(false)}
+  const listener=supabase.auth.onAuthStateChange((event,nextSession)=>{if(event==='SIGNED_IN'&&nextSession)setTimeout(()=>activateLive(nextSession).catch(async err=>{await supabase.auth.signOut();await activatePublic();openAuth(false);$('authMessage').textContent=err.message;$('authMessage').classList.add('error')}),0);if(event==='SIGNED_OUT')setTimeout(()=>activatePublic().catch(err=>toast(err.message)),0)});authSubscription=listener.data.subscription;
+  if(currentSession)await activateLive(currentSession);else await activatePublic()
 }
 
 window.addEventListener('pagehide',()=>authSubscription?.unsubscribe());
