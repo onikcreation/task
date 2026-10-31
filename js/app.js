@@ -1,7 +1,7 @@
-import {loadConfig} from './config.js?v=20261031-16';
-import {createRepository} from './data/repository.js?v=20261031-16';
-import {createBrowserSupabase} from './supabase-client.js?v=20261031-16';
-import {buildTaskWorkbook} from './xlsx-export.js?v=20261031-16';
+import {loadConfig} from './config.js?v=20261031-17';
+import {createRepository} from './data/repository.js?v=20261031-17';
+import {createBrowserSupabase} from './supabase-client.js?v=20261031-17';
+import {buildTaskWorkbook} from './xlsx-export.js?v=20261031-17';
 
 const $=id=>document.getElementById(id);
 const state={workspace:'tasks',view:'pending',specialId:'',search:'',status:'',date:'all',dateFrom:'',dateTo:'',group:'',sort:'newest',offset:0,items:[],total:0,hasMore:false};
@@ -34,12 +34,11 @@ function resolvedDesign(next=appearance()){
   return designIds.includes(designSettings.defaultPreset)?designSettings.defaultPreset:'calm';
 }
 function applyAppearance(next=appearance()){
-  const preset=resolvedDesign(next),presetForcesDark=preset==='midnight';
-  const dark=presetForcesDark||next.mode==='dark'||(next.mode==='system'&&matchMedia('(prefers-color-scheme:dark)').matches);document.body.classList.toggle('dark',dark);
+  const dark=next.mode==='dark'||(next.mode==='system'&&matchMedia('(prefers-color-scheme:dark)').matches);document.body.classList.toggle('dark',dark);
   [...document.body.classList].filter(name=>/^(accent|tint|density|text|mobile|marker|design)-/.test(name)||name==='group-panel').forEach(name=>document.body.classList.remove(name));
-  document.body.classList.add(`design-${preset}`);document.body.dataset.design=preset;
-  if(next.accent!=='indigo')document.body.classList.add(`accent-${next.accent}`);document.body.classList.add(`tint-${next.tint}`,`density-${next.density}`,`text-${next.size}`,`mobile-${next.mobile}`,`marker-${next.marker}`);if(next.group==='panel')document.body.classList.add('group-panel');
-  $('themeButton').textContent=dark?'☀':'☾';
+  document.body.dataset.design='legacy';
+  document.documentElement.dataset.theme=dark?'dark':'light';
+  document.querySelectorAll('#themeButton,#bottomTheme').forEach(button=>button.setAttribute('aria-label',dark?'Light mode চালু করুন':'Dark mode চালু করুন'));
 }
 function saveAppearance(){const next={preset:$('themePreset').value,mode:$('themeMode').value,accent:$('themeAccent').value,tint:$('themeTint').value,density:$('themeDensity').value,size:$('themeSize').value,group:$('themeGroup').value,mobile:$('themeMobile').value,marker:$('themeMarker').value};localStorage.setItem('uuuTT.appearance',JSON.stringify(next));localStorage.setItem('uuuTT.theme',next.mode);applyAppearance(next)}
 function configureThemePreset(){const select=$('themePreset'),allowed=designSettings.allowUserOverride;select.disabled=!allowed;select.closest('label').classList.toggle('is-disabled',!allowed);$('themePresetHint').textContent=allowed?`Admin default: ${designPresets.find(item=>item.id===designSettings.defaultPreset)?.name||'Calm Command'}`:'Admin ব্যক্তিগত design পরিবর্তন বন্ধ রেখেছেন।'}
@@ -51,8 +50,10 @@ function renderSpecialTabs(){const active=specialViews.filter(view=>view.active)
 
 function renderSummary(s){
   $('pendingCount').textContent=s.pending;
+  $('legacyPendingCount').textContent=s.pending;
   const metrics=[['Urgent',s.urgent,'#ef4444'],['Pending',s.waiting,'#eab308'],['Task Added',s.added,'#3b82f6'],['All Tasks',s.total,'#8b5cf6']];
   $('summaryGrid').innerHTML=metrics.map(m=>`<div class="metric"><strong>${m[1]}</strong><span><i style="background:${m[2]}"></i>${m[0]}</span></div>`).join('');
+  $('legacySideStats').innerHTML=metrics.map(m=>`<button class="legacy-nav legacy-stat" type="button" data-summary-status="${esc(m[0])}"><i class="legacy-dot" style="background:${m[2]}"></i><span>${esc(m[0])}</span><strong>${m[1]}</strong></button>`).join('');
   $('progressFill').style.width=(s.total?Math.min(100,(s.pending/s.total)*100):0)+'%';
   $('statusFilter').innerHTML='<option value="">All Status</option>'+s.statuses.map(x=>`<option>${esc(x)}</option>`).join('');
 }
@@ -63,8 +64,13 @@ function card(t,index){
   const adminAction=permissions.delete?(t.isDeleted?`<button class="restore-button" type="button" data-restore-index="${index}">Restore</button>`:`<button class="task-edit-button danger-button" type="button" data-delete-index="${index}">Delete</button>`):'';
   const viewTags=specialViews.filter(view=>view.active&&view.tag&&taskMatchesView(t,view)).map(view=>`<span class="chip special-chip" style="--chip-color:${esc(view.color)}">${esc(view.name)}</span>`).join('');
   return `<article class="task-card editable${highlightTaskId===t.id?' just-saved':''}" data-priority="${esc(t.priority)}" style="--priority:${priorityColors[t.priority]||'#9ca3af'};--status-color:${statusColors[t.isDeleted?'Deleted':t.status]||'#9ca3af'}">
-    <div><h3>${esc(t.title||t.details)}</h3><p>${esc(t.details)}</p><div class="task-meta"><span class="chip">${esc(t.id)}</span><span class="chip">${esc(t.menuPath)}</span><span class="chip">${esc(t.platform)}</span>${viewTags}</div></div>
-    <div class="task-side"><span class="status">${esc(t.isDeleted?'Deleted':t.status)}</span><time datetime="${esc(t.createdAt)}">${dateText(t.createdAt)}</time><span class="chip">${esc(t.priority)}</span><div class="task-card-actions">${view}${edit}${adminAction}</div></div>
+    <div class="task-main"><div class="task-id-line"><strong>${esc(t.id)}</strong></div><h3>${esc(t.title||t.details)}</h3><p>${esc(t.details)}</p><div class="task-meta"><span class="chip">${esc(t.id)}</span><span class="chip">${esc(t.menuPath)}</span><span class="chip">${esc(t.platform)}</span>${viewTags}</div></div>
+    <div class="desktop-task-field"><span class="priority-badge">${esc(t.priority||'—')}</span></div>
+    <div class="desktop-task-field"><span class="status">${esc(t.isDeleted?'Deleted':t.status)}</span></div>
+    <div class="desktop-task-field"><strong>${esc(t.platform||'—')}</strong><small>${esc(t.taskType||'')}</small></div>
+    <div class="desktop-task-field"><strong>${esc(t.issuedPerson||t.issuedDepartment||'—')}</strong></div>
+    <div class="desktop-task-field"><strong>${esc(t.entryBy||'—')}</strong></div>
+    <div class="task-side"><time datetime="${esc(t.createdAt)}">${dateText(t.createdAt)}</time><span class="mobile-task-badge status">${esc(t.isDeleted?'Deleted':t.status)}</span><span class="mobile-task-badge chip">${esc(t.priority)}</span><div class="task-card-actions">${view}${edit}${adminAction}</div></div>
   </article>`;
 }
 
@@ -229,7 +235,9 @@ function applySearch(value){
 function bindEvents(){
   document.addEventListener('click',event=>{if(event.target.closest('[data-inline-login]'))openAuth(false)});
   $('searchInput').addEventListener('input',e=>{clearTimeout(searchTimer);searchTimer=setTimeout(()=>applySearch(e.target.value),220)});$('statusFilter').addEventListener('change',e=>{state.status=e.target.value;load(true)});$('dateFilter').addEventListener('change',e=>changeDateFilter(e.target.value));$('dateFrom').addEventListener('change',changeCustomRange);$('dateTo').addEventListener('change',changeCustomRange);$('dateRangeClear').addEventListener('click',()=>{$('dateFilter').value='all';changeDateFilter('all')});$('groupSelect').addEventListener('change',e=>{state.group=e.target.value;collapsedGroups.clear();load(true)});$('sortSelect').addEventListener('change',e=>{state.sort=e.target.value;load(true)});$('loadMoreButton').addEventListener('click',()=>load(false));
+$('legacySideStats').addEventListener('click',event=>{const button=event.target.closest('[data-summary-status]');if(!button)return;const label=button.dataset.summaryStatus;switchWorkspace('tasks');state.view=label==='All Tasks'?'all':'pending';state.status=['Pending','Task Added'].includes(label)?label:'';$('statusFilter').value=state.status;$('listTitle').textContent=label==='All Tasks'?'All Tasks':'Open Tasks';load(true)});document.querySelectorAll('[data-quick-date]').forEach(button=>button.addEventListener('click',()=>{$('dateFilter').value=button.dataset.quickDate;document.querySelectorAll('[data-quick-date]').forEach(item=>item.classList.toggle('active',item===button));changeDateFilter(button.dataset.quickDate)}));
   $('specialTabs').parentElement.addEventListener('click',event=>{const tab=event.target.closest('.tab');if(!tab)return;document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));tab.classList.add('active');$('listTitle').textContent=tab.textContent.trim();if(tab.dataset.specialId){state.view='special';state.specialId=tab.dataset.specialId}else{state.view=tab.dataset.view;state.specialId=''}load(true)});document.querySelectorAll('[data-workspace]').forEach(button=>button.addEventListener('click',()=>switchWorkspace(button.dataset.workspace)));$('homeButton').addEventListener('click',resetHome);$('themeButton').addEventListener('click',openTheme);$('bottomTheme').addEventListener('click',openTheme);$('accountButton').addEventListener('click',()=>openAuth(Boolean(session)));
+document.querySelectorAll('[data-side-view]').forEach(button=>button.addEventListener('click',()=>{switchWorkspace('tasks');state.view=button.dataset.sideView;state.specialId='';document.querySelectorAll('.tab').forEach(tab=>tab.classList.toggle('active',tab.dataset.view===state.view));$('listTitle').textContent=state.view==='all'?'All Tasks':'Open Tasks';load(true)}));
   $('taskList').addEventListener('click',event=>{const head=event.target.closest('.task-group-head');if(!head)return;const group=head.closest('.task-group'),name=group.dataset.groupName;if(collapsedGroups.has(name))collapsedGroups.delete(name);else collapsedGroups.add(name);renderList()});
   $('exportButton').addEventListener('click',openExportConfirm);$('exportCancelButton').addEventListener('click',()=>$('exportConfirmDialog').close());$('exportConfirmButton').addEventListener('click',exportXlsx);$('exportConfirmDialog').addEventListener('click',event=>{if(event.target===$('exportConfirmDialog'))$('exportConfirmDialog').close()});$('dashboardRefresh').addEventListener('click',loadDashboard);$('activityRefresh').addEventListener('click',loadActivity);$('activityFilter').addEventListener('change',()=>{try{renderActivity(JSON.parse($('activityList').dataset.items||'[]'))}catch(_error){loadActivity()}});$('statusChart').addEventListener('click',event=>{const row=event.target.closest('[data-dashboard-status]');if(!row)return;state.status=row.dataset.dashboardStatus;$('statusFilter').value=state.status;switchWorkspace('tasks');load(true)});$('dayChart').addEventListener('click',event=>{const row=event.target.closest('[data-dashboard-date]');if(!row)return;state.date='custom';state.dateFrom=row.dataset.dashboardDate;state.dateTo=row.dataset.dashboardDate;$('dateFilter').value='custom';$('dateFrom').value=state.dateFrom;$('dateTo').value=state.dateTo;$('dateRangeBar').hidden=false;switchWorkspace('tasks');load(true)});
   $('loginForm').addEventListener('submit',sendMagicLink);$('logoutButton').addEventListener('click',signOut);$('authClose').addEventListener('click',closeAuth);$('accountClose').addEventListener('click',closeAuth);$('authDialog').addEventListener('click',event=>{if(event.target===$('authDialog'))closeAuth()});
