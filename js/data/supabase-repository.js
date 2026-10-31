@@ -34,6 +34,7 @@ export function createSupabaseRepository(client){
       return {pending,urgent,waiting,added,total,statuses};
     },
     async getOptions(){const {data,error}=await client.from('app_settings').select('value').eq('key','lists').single();fail(error);const value=data?.value||{};return {priority:names(value.priority),status:names(value.status),taskType:names(value.type),platform:names(value.platform),department:names(value.dept),person:names(value.person),actionStatus:names(value.action),progress:names(value.progress),module:names(value.module)}},
+    async getDesignSettings(){const {data,error}=await client.from('app_settings').select('value').eq('key','design').maybeSingle();fail(error);const value=data?.value||{};return {defaultPreset:value.defaultPreset||'calm',allowUserOverride:value.allowUserOverride!==false}},
     async getPermissions(){const actions=['add','edit','status','delete','export','settings'];const values=await Promise.all(actions.map(async action=>{const {data,error}=await client.rpc('has_permission',{requested_action:action});fail(error);return [action,Boolean(data)]}));return Object.fromEntries(values)},
     async getSpecialViews(){const {data,error}=await client.from('app_settings').select('key,value').in('key',['views','specialViews']);fail(error);const rows=data||[],preferred=rows.find(row=>row.key==='views')||rows.find(row=>row.key==='specialViews');return Array.isArray(preferred?.value)?preferred.value:[]},
     async getDashboard(){
@@ -59,6 +60,7 @@ export function createSupabaseRepository(client){
     async updateAdminUser(email,role,isActive){const {data,error}=await client.rpc('admin_update_user_access',{target_email:email,new_role:role,new_is_active:isActive});fail(error);return Array.isArray(data)?data[0]:data},
     async updateAdminList(listName,items){const {data,error}=await client.rpc('admin_update_list_setting',{list_name:listName,items});fail(error);return Array.isArray(data)?data[0]:data},
     async updateAdminSpecialViews(views){const {data,error}=await client.rpc('admin_update_special_views',{views});fail(error);return data||[]},
+    async updateAdminDesign(defaultPreset,allowUserOverride){const {data,error}=await client.rpc('admin_update_design_setting',{new_default:defaultPreset,new_allow_user_override:allowUserOverride});fail(error);const row=Array.isArray(data)?data[0]:data,value=row?.value||{};return {defaultPreset:value.defaultPreset||defaultPreset,allowUserOverride:value.allowUserOverride!==false}},
     async createTask(payload){const {data,error}=await client.rpc('create_task',{payload});fail(error);return one(data)},
     async updateTask(dbId,expectedRevision,patch){const {data,error}=await client.rpc('update_task',{task_id:dbId,expected_revision:expectedRevision,patch});fail(error);return one(data)},
     async setTaskStatus(dbId,expectedRevision,newStatus){const {data,error}=await client.rpc('set_task_status',{task_id:dbId,expected_revision:expectedRevision,new_status:newStatus});fail(error);return one(data)},

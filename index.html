@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#4338ca">
   <title>UUU Task Tracker — Supabase Preview</title>
-  <link rel="stylesheet" href="./css/app.css?v=20261031-15">
+  <link rel="stylesheet" href="./css/app.css?v=20261031-16">
 </head>
 <body>
   <a class="skip-link" href="#taskList">কাজের তালিকায় যান</a>
@@ -187,6 +187,7 @@
     <section class="theme-panel">
       <header class="task-editor-head"><div><p class="eyebrow">Appearance</p><h2 id="themeDialogTitle">Theme & Layout</h2></div><button class="dialog-close" id="themeClose" type="button" aria-label="বন্ধ করুন">×</button></header>
       <div class="theme-grid">
+        <label class="theme-preset-field"><span>Design preset</span><select id="themePreset"><option value="admin">Admin default</option><option value="calm">01 — Calm Command</option><option value="compact">02 — Compact Ops</option><option value="editorial">03 — Editorial Focus</option><option value="edge">04 — Edge Control</option><option value="timeline">05 — Timeline Flow</option><option value="midnight">06 — Midnight Grid</option></select><small id="themePresetHint">Admin-এর নির্ধারিত design অথবা নিজের পছন্দ ব্যবহার করুন।</small></label>
         <label><span>Mode</span><select id="themeMode"><option value="light">Light</option><option value="dark">Dark</option><option value="system">System</option></select></label>
         <label><span>Accent</span><select id="themeAccent"><option value="indigo">Indigo</option><option value="violet">Violet</option><option value="blue">Blue</option><option value="teal">Teal</option></select></label>
         <label><span>Task color</span><select id="themeTint"><option value="line">Left line</option><option value="soft">Soft background</option><option value="frame">Color frame</option><option value="urgent">Urgent only</option></select></label>
@@ -207,6 +208,7 @@
         <button class="admin-tab active" type="button" data-admin-section="users">Users</button>
         <button class="admin-tab" type="button" data-admin-section="lists">Lists</button>
         <button class="admin-tab" type="button" data-admin-section="views">Special Tabs</button>
+        <button class="admin-tab" type="button" data-admin-section="designs">Designs</button>
         <button class="admin-tab" type="button" data-admin-section="audit">Audit</button>
       </nav>
       <div class="admin-message" id="adminMessage" role="status" aria-live="polite"></div>
@@ -229,11 +231,17 @@
         <div class="admin-view-list" id="adminViewList"></div>
         <div class="admin-actions"><button class="auth-submit" id="adminViewsSave" type="button">Save Special Tabs</button></div>
       </section>
+      <section class="admin-section" id="adminDesignsSection" hidden>
+        <div class="admin-section-head"><div><h3>Design Presets</h3><p>ছয়টি responsive design থেকে সবার জন্য default নির্বাচন করুন। Preview শুধু এই browser-এ সাময়িকভাবে দেখাবে।</p></div><button class="cancel-button compact" id="adminDesignResetPreview" type="button">Exit Preview</button></div>
+        <div class="design-preset-grid" id="adminDesignList" role="radiogroup" aria-label="Default design preset"></div>
+        <label class="admin-design-override"><input type="checkbox" id="adminDesignOverride"> ব্যবহারকারীরা Theme & Layout থেকে নিজের design বেছে নিতে পারবে</label>
+        <div class="admin-actions"><button class="auth-submit" id="adminDesignSave" type="button">Save Default Design</button></div>
+      </section>
     </section>
   </dialog>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script type="module" src="./js/app.js?v=20261031-15"></script>
+  <script type="module" src="./js/app.js?v=20261031-16"></script>
 </body>
 </html>
 

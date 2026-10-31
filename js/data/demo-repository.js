@@ -18,6 +18,9 @@ function text(task){return [task.id,task.title,task.details,task.menuPath,task.p
 export function createDemoRepository(){
   return {
     mode:'demo',
+    async getOptions(){return {priority:['Urgent','Top','Medium','Regular','Low'],status:['Pending','Task Added','Backlog','Done','Canceled'],taskType:['Bug','Feature','Our Task','Developer Help'],platform:['UMS','App','Website','Qmaster','Teacher Portal'],department:[],person:['Liton Vai'],actionStatus:[],progress:[],module:[]}},
+    async getDesignSettings(){return {defaultPreset:'calm',allowUserOverride:true}},
+    async updateAdminDesign(defaultPreset,allowUserOverride){return {defaultPreset,allowUserOverride}},
     async getSpecialViews(){return [{id:'our',name:'Our Task',color:'#7C3AED',active:true,tag:true,condition:{taskType:['Our Task']}},{id:'liton',name:'Liton Vai',color:'#EA580C',active:true,tag:true,condition:{person:['Liton Vai']}}]},
     async getDashboard(){const active=SAMPLE,now=new Date(),grouped=key=>Object.fromEntries([...new Set(active.map(row=>row[key]||'Unspecified'))].map(value=>[value,active.filter(row=>(row[key]||'Unspecified')===value).length])),byDay=Array.from({length:now.getDate()},(_,index)=>{const day=index+1;return {label:String(day),date:`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`,count:active.filter(row=>{const date=new Date(row.createdAt);return date.getFullYear()===now.getFullYear()&&date.getMonth()===now.getMonth()&&date.getDate()===day}).length}});return {total:active.length,open:active.filter(row=>['Pending','Task Added'].includes(row.status)).length,done:active.filter(row=>row.status==='Done').length,deleted:0,byStatus:grouped('status'),byPriority:grouped('priority'),byPlatform:grouped('platform'),byMonth:[],byDay}},
     async getActivity(){return SAMPLE.slice(0,6).map((task,index)=>({id:index,kind:'task',action:'demo_activity',target:task.id,actor:'Demo',message:task.title,at:task.createdAt}))},
