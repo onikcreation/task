@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#4338ca">
+  <title>UUU Task Tracker — Supabase Preview</title>
+  <link rel="stylesheet" href="./css/app.css">
+</head>
+<body>
+  <a class="skip-link" href="#taskList">কাজের তালিকায় যান</a>
+  <header class="topbar">
+    <button class="brand" id="homeButton" type="button" aria-label="Task Tracker হোম">
+      <span class="brand-mark" aria-hidden="true">✓</span>
+      <span>Task Tracker</span>
+    </button>
+    <div class="top-actions">
+      <span class="connection" id="connectionBadge">Demo mode</span>
+      <button class="admin-button" id="adminButton" type="button" hidden>⚙ Admin</button>
+      <button class="icon-button" id="themeButton" type="button" aria-label="রঙের মোড বদলান">☾</button>
+      <button class="avatar" id="accountButton" type="button" aria-label="অ্যাকাউন্ট">A</button>
+    </div>
+  </header>
+
+  <main class="page-shell">
+    <section class="search-row" aria-label="খোঁজ ও নতুন কাজ">
+      <label class="search-box">
+        <span aria-hidden="true">⌕</span>
+        <input id="searchInput" type="search" placeholder="Search task, menu, reg/pin…" autocomplete="off">
+      </label>
+      <button class="primary-button" id="newTaskButton" type="button" disabled title="Live connection-এর পরে চালু হবে">+ New Task</button>
+    </section>
+
+    <nav class="workspace-nav" aria-label="প্রধান পেজ">
+      <button class="workspace-button active" type="button" data-workspace="tasks">Tasks</button>
+      <button class="workspace-button" type="button" data-workspace="dashboard">Dashboard</button>
+      <button class="workspace-button" type="button" data-workspace="activity">Activity</button>
+    </nav>
+
+    <div id="tasksWorkspace">
+
+    <section class="summary-card" aria-labelledby="summaryTitle">
+      <div class="summary-heading">
+        <div><p class="eyebrow">বর্তমান সারাংশ</p><h1 id="summaryTitle">Pending tasks</h1></div>
+        <strong class="summary-total" id="pendingCount">0</strong>
+      </div>
+      <div class="summary-grid" id="summaryGrid"></div>
+      <div class="progress-track" aria-hidden="true"><span id="progressFill"></span></div>
+    </section>
+
+    <nav class="saved-tabs" aria-label="Task views">
+      <button class="tab active" type="button" data-view="pending">Open Tasks</button>
+      <span id="specialTabs"></span>
+      <button class="tab" id="deletedTab" type="button" data-view="deleted" hidden>Deleted</button>
+    </nav>
+
+    <section class="toolbar" aria-label="তালিকা নিয়ন্ত্রণ">
+      <label><span>Entry Date</span><select id="dateFilter"><option value="all">All Time</option><option value="today">Today</option><option value="week">This Week</option><option value="month">This Month</option></select></label>
+      <label><span>Status</span><select id="statusFilter"><option value="">All Status</option></select></label>
+      <label><span>Sort</span><select id="sortSelect"><option value="newest">Newest</option><option value="oldest">Oldest</option><option value="priority">Priority</option></select></label>
+    </section>
+
+    <section class="list-section" aria-labelledby="listTitle">
+      <div class="list-title-row"><div><p class="eyebrow">Task list</p><h2 id="listTitle">Open Tasks</h2></div><div class="list-actions"><span id="resultCount">0টি</span><button class="export-button" id="exportButton" type="button" hidden>↓ Export XLSX</button></div></div>
+      <div class="task-list" id="taskList" aria-live="polite"></div>
+      <button class="load-more" id="loadMoreButton" type="button">আরও দেখুন</button>
+    </section>
+    </div>
+
+    <section class="insight-section" id="dashboardSection" hidden aria-labelledby="dashboardTitle">
+      <header class="insight-head"><div><p class="eyebrow">Live insights</p><h1 id="dashboardTitle">Dashboard</h1><p>সক্রিয় Task-এর status, priority, platform ও সাম্প্রতিক মাসের চিত্র।</p></div><button class="cancel-button compact" id="dashboardRefresh" type="button">Refresh</button></header>
+      <div class="dashboard-kpis" id="dashboardKpis"></div>
+      <div class="dashboard-grid">
+        <article class="chart-card"><h2>Status</h2><div class="bar-chart" id="statusChart"></div></article>
+        <article class="chart-card"><h2>Priority</h2><div class="bar-chart" id="priorityChart"></div></article>
+        <article class="chart-card"><h2>Platform</h2><div class="bar-chart" id="platformChart"></div></article>
+        <article class="chart-card"><h2>Last 12 months</h2><div class="bar-chart" id="monthChart"></div></article>
+      </div>
+    </section>
+
+    <section class="insight-section" id="activitySection" hidden aria-labelledby="activityTitle">
+      <header class="insight-head"><div><p class="eyebrow">Audit trail</p><h1 id="activityTitle">Activity Log</h1><p>Task ও Admin কার্যক্রমের সর্বশেষ history।</p></div><button class="cancel-button compact" id="activityRefresh" type="button">Refresh</button></header>
+      <label class="activity-filter"><span>Activity</span><select id="activityFilter"><option value="all">All activity</option><option value="task">Task only</option><option value="admin">Admin only</option></select></label>
+      <div class="activity-list" id="activityList"><div class="empty">Activity লোড হচ্ছে…</div></div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" aria-label="মোবাইল প্রধান মেনু">
+    <button class="active" id="bottomTasks" type="button" data-workspace="tasks"><span>☷</span>Tasks</button>
+    <button id="bottomDashboard" type="button" data-workspace="dashboard"><span>▥</span>Dashboard</button>
+    <button class="new" id="bottomNewButton" type="button" disabled><span>＋</span>New</button>
+    <button type="button" id="bottomTheme"><span>◐</span>Theme</button>
+    <button id="bottomActivity" type="button" data-workspace="activity"><span>≡</span>Activity</button>
+  </nav>
+
+  <dialog class="auth-dialog" id="authDialog" aria-labelledby="authTitle">
+    <form class="auth-card" id="loginForm">
+      <button class="dialog-close" id="authClose" type="button" aria-label="বন্ধ করুন">×</button>
+      <div class="auth-mark" aria-hidden="true">✓</div>
+      <p class="eyebrow">Secure access</p>
+      <h2 id="authTitle">Task Tracker-এ প্রবেশ করুন</h2>
+      <p class="auth-copy">অনুমোদিত email দিন। Supabase আপনার email-এ একটি নিরাপদ magic link পাঠাবে।</p>
+      <label class="auth-field"><span>Email</span><input id="loginEmail" type="email" autocomplete="email" required placeholder="name@example.com"></label>
+      <button class="auth-submit" id="loginButton" type="submit">Magic link পাঠান</button>
+      <p class="auth-message" id="authMessage" role="status" aria-live="polite"></p>
+    </form>
+    <section class="auth-card account-card" id="accountPanel" hidden>
+      <button class="dialog-close" id="accountClose" type="button" aria-label="বন্ধ করুন">×</button>
+      <div class="auth-mark" id="accountInitial" aria-hidden="true">A</div>
+      <p class="eyebrow">Signed in</p><h2 id="accountName">Account</h2>
+      <p class="auth-copy" id="accountEmail"></p><span class="role-pill" id="accountRole">Viewer</span>
+      <button class="auth-submit secondary" id="logoutButton" type="button">Sign out</button>
+    </section>
+  </dialog>
+
+  <dialog class="task-editor-dialog" id="taskEditorDialog" aria-labelledby="taskEditorTitle">
+    <form class="task-editor" id="taskForm">
+      <header class="task-editor-head">
+        <div><p class="eyebrow" id="taskEditorMode">New task</p><h2 id="taskEditorTitle">Task তৈরি করুন</h2></div>
+        <button class="dialog-close" id="taskEditorClose" type="button" aria-label="বন্ধ করুন">×</button>
+      </header>
+      <input id="taskDbId" type="hidden"><input id="taskRevision" type="hidden"><input id="taskOriginalStatus" type="hidden">
+      <div class="task-form-grid">
+        <label><span>Priority *</span><select id="taskPriority" required></select></label>
+        <label><span>Status *</span><select id="taskStatus" required></select></label>
+        <label><span>Task Type *</span><select id="taskType" required></select></label>
+        <label><span>Platform *</span><select id="taskPlatform" required></select></label>
+        <label class="wide"><span>Menu</span><input id="taskMenu" type="text" placeholder="Student > Information"></label>
+        <label class="wide"><span>Title</span><input id="taskTitle" type="text" placeholder="সংক্ষিপ্ত শিরোনাম"></label>
+        <label class="wide"><span>Details *</span><textarea id="taskDetails" rows="6" required placeholder="Task-এর বিস্তারিত লিখুন"></textarea></label>
+        <label><span>Issued Department</span><input id="taskDepartment" type="text" list="departmentOptions"></label>
+        <label><span>Issued Person</span><input id="taskPerson" type="text" list="personOptions"></label>
+        <label class="wide"><span>Approved By</span><input id="taskApprovedBy" type="text" placeholder="একাধিক হলে কমা দিয়ে লিখুন"></label>
+        <label><span>Task No. (Teams)</span><input id="taskNumber" type="text" placeholder="#69xxx"></label>
+        <label><span>Reg / Pin / TPin</span><input id="taskRegPin" type="text"></label>
+        <label><span>Action Status</span><select id="taskActionStatus"></select></label>
+        <label><span>Progress</span><select id="taskProgress"></select></label>
+        <label><span>Module</span><select id="taskModule"></select></label>
+        <label><span>ERP / App Version</span><input id="taskAppVersion" type="text" placeholder="8.136.3"></label>
+        <label class="wide"><span>Links</span><textarea id="taskLinks" rows="3" placeholder="প্রতি লাইনে একটি link"></textarea></label>
+        <label class="wide"><span>Solution</span><textarea id="taskSolution" rows="3"></textarea></label>
+        <label class="wide"><span>Remarks</span><textarea id="taskRemarks" rows="3"></textarea></label>
+      </div>
+      <datalist id="departmentOptions"></datalist><datalist id="personOptions"></datalist>
+      <p class="form-error" id="taskFormError" role="alert"></p>
+      <footer class="task-editor-actions"><button class="cancel-button" id="taskCancelButton" type="button">Cancel</button><button class="auth-submit save-task" id="taskSaveButton" type="submit">Save Task</button></footer>
+    </form>
+  </dialog>
+
+  <dialog class="task-detail-dialog" id="taskDetailDialog" aria-labelledby="taskDetailTitle">
+    <article class="task-detail-panel">
+      <header class="task-detail-head"><div><p class="eyebrow" id="taskDetailId">Task</p><h2 id="taskDetailTitle">Task details</h2></div><button class="dialog-close" id="taskDetailClose" type="button" aria-label="বন্ধ করুন">×</button></header>
+      <div id="taskDetailBody"></div>
+      <section class="history-section"><p class="eyebrow">History</p><div class="history-list" id="taskHistoryList"><div class="empty">History লোড হচ্ছে…</div></div></section>
+      <footer class="task-detail-actions"><button class="cancel-button" id="taskDetailDone" type="button">Close</button><button class="auth-submit detail-edit" id="taskDetailEdit" type="button">Edit Task</button></footer>
+    </article>
+  </dialog>
+
+  <dialog class="confirm-dialog" id="deleteConfirmDialog" aria-labelledby="deleteConfirmTitle">
+    <section class="confirm-card">
+      <p class="eyebrow">Admin action</p>
+      <h2 id="deleteConfirmTitle">Task soft-delete করবেন?</h2>
+      <p id="deleteConfirmText">Taskটি Deleted তালিকায় যাবে এবং পরে Restore করা যাবে।</p>
+      <footer class="confirm-actions"><button class="cancel-button" id="deleteCancelButton" type="button">Cancel</button><button class="danger-button" id="deleteConfirmButton" type="button">Delete Task</button></footer>
+    </section>
+  </dialog>
+
+  <dialog class="admin-dialog" id="adminDialog" aria-labelledby="adminDialogTitle">
+    <section class="admin-panel">
+      <header class="admin-head"><div><p class="eyebrow">Administration</p><h2 id="adminDialogTitle">Settings & Users</h2></div><button class="dialog-close" id="adminClose" type="button" aria-label="বন্ধ করুন">×</button></header>
+      <nav class="admin-tabs" aria-label="Admin sections">
+        <button class="admin-tab active" type="button" data-admin-section="users">Users</button>
+        <button class="admin-tab" type="button" data-admin-section="lists">Lists</button>
+        <button class="admin-tab" type="button" data-admin-section="views">Special Tabs</button>
+        <button class="admin-tab" type="button" data-admin-section="audit">Audit</button>
+      </nav>
+      <div class="admin-message" id="adminMessage" role="status" aria-live="polite"></div>
+      <section class="admin-section" id="adminUsersSection">
+        <div class="admin-section-head"><div><h3>Approved Users</h3><p>Role ও active access পরিবর্তন করুন। নিজের Admin access বন্ধ করা যাবে না।</p></div><button class="cancel-button compact" id="adminUsersRefresh" type="button">Refresh</button></div>
+        <div class="admin-user-list" id="adminUserList"><div class="empty">Users লোড হচ্ছে…</div></div>
+      </section>
+      <section class="admin-section" id="adminListsSection" hidden>
+        <div class="admin-section-head"><div><h3>Dropdown Lists</h3><p>প্রতি লাইনে একটি item। inactive রাখতে নামের আগে <strong>!</strong> দিন।</p></div></div>
+        <label class="admin-field"><span>List</span><select id="adminListName"><option value="priority">Priority</option><option value="status">Status</option><option value="type">Task Type</option><option value="platform">Platform</option><option value="dept">Department</option><option value="person">Person</option><option value="action">Action Status</option><option value="progress">Progress</option><option value="module">Module</option></select></label>
+        <label class="admin-field"><span>Items</span><textarea id="adminListItems" rows="12" spellcheck="false"></textarea></label>
+        <div class="admin-actions"><button class="auth-submit" id="adminListSave" type="button">Save List</button></div>
+      </section>
+      <section class="admin-section" id="adminAuditSection" hidden>
+        <div class="admin-section-head"><div><h3>Recent Admin Activity</h3><p>User ও list পরিবর্তনের audit history।</p></div><button class="cancel-button compact" id="adminAuditRefresh" type="button">Refresh</button></div>
+        <div class="admin-audit-list" id="adminAuditList"><div class="empty">Audit লোড হচ্ছে…</div></div>
+      </section>
+      <section class="admin-section" id="adminViewsSection" hidden>
+        <div class="admin-section-head"><div><h3>Special Tabs</h3><p>নাম, রং ও একটি matching rule দিয়ে Task tab তৈরি করুন। Person rule Issued Person ও Approved By—দুটিতেই খোঁজে।</p></div><button class="cancel-button compact" id="adminViewAdd" type="button">+ Add</button></div>
+        <div class="admin-view-list" id="adminViewList"></div>
+        <div class="admin-actions"><button class="auth-submit" id="adminViewsSave" type="button">Save Special Tabs</button></div>
+      </section>
+    </section>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script type="module" src="./js/app.js?v=20261031-11"></script>
+</body>
+</html>
+
