@@ -14,6 +14,7 @@ function applySpecialView(request,view){
   const statuses=values(condition.status);if(statuses.length)request=request.in('status',statuses);
   const priorities=values(condition.priority);if(priorities.length)request=request.in('priority',priorities);
   const platforms=values(condition.platform);if(platforms.length)request=request.in('platform',platforms);
+  const departments=values(condition.dept);if(departments.length)request=request.in('issued_department',departments);
   const people=values(condition.person).map(cleanSearch).filter(Boolean);if(people.length){const terms=people.flatMap(person=>{const arrayItem=person.replaceAll('\\','\\\\').replaceAll('"','\\"');return [`issued_person.ilike.%${person}%`,`approved_by.cs.{"${arrayItem}"}`]});request=request.or(terms.join(','))}
   return request;
 }

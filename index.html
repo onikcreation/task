@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./css/app.css?v=20261101-38">
-  <link rel="stylesheet" href="./css/supabase.css?v=20261101-36">
+  <link rel="stylesheet" href="./css/supabase.css?v=20261101-39">
 </head>
 <body>
   <a class="skip-link" href="#taskList">কাজের তালিকায় যান</a>
@@ -246,6 +246,12 @@
 
   <dialog class="admin-dialog" id="adminDialog" aria-labelledby="adminDialogTitle">
     <section class="admin-panel">
+      <div id="canonicalSettings">
+        <button class="dialog-close admin-mobile-close" id="canonicalAdminClose" type="button" aria-label="বন্ধ করুন">×</button>
+        <div class="ph admin-page-head"><div class="grow"><h1 id="canonicalAdminTitle">Settings</h1><p>Manage app settings, dropdown options, users and permissions. Changes save instantly.</p></div></div>
+        <div class="admin-message" id="canonicalAdminMessage" role="status" aria-live="polite"></div>
+        <div class="set-wrap"><nav class="set-menu" id="adminSettingsMenu" aria-label="Settings sections"></nav><section class="set-panel" id="adminSettingsPanel"><div class="empty">Settings লোড হচ্ছে…</div></section></div>
+      </div>
       <header class="admin-head"><div><p class="eyebrow">Administration</p><h2 id="adminDialogTitle">Settings</h2></div><button class="dialog-close" id="adminClose" type="button" aria-label="বন্ধ করুন">×</button></header>
       <nav class="admin-tabs" aria-label="Admin sections">
         <h6>General</h6>
@@ -297,7 +303,7 @@
   </dialog>
 
   <div class="toast" id="toast" role="status" aria-live="polite" popover="manual"></div>
-  <script type="module" src="./js/app.js?v=20261101-38"></script>
+  <script type="module" src="./js/app.js?v=20261101-39"></script>
 </body>
 </html>
 

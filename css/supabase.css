@@ -118,3 +118,39 @@ dialog{border:0;padding:0;background:transparent;color:var(--ink)}dialog::backdr
 .permission-row:first-child{border-top:0}.permission-row label{display:flex;align-items:center;gap:7px}.permission-head{background:var(--surface-2)}
 @media(min-width:900px){.settings-workspace .admin-tabs h6{margin:12px 10px 4px;color:var(--ink-3);font-size:10px;text-transform:uppercase;letter-spacing:.55px}.settings-workspace .admin-tabs h6:first-child{margin-top:0}}
 @media(max-width:899px){.admin-tabs h6{display:none}.admin-general-grid{grid-template-columns:1fr}.permission-row{grid-template-columns:minmax(110px,1fr) 92px 92px;padding-inline:8px;font-size:12px}}
+
+/* Canonical Settings parity. Legacy admin children stay in the DOM only so older
+   bindings cannot fail; the canonical renderer is the sole visible Settings UI. */
+.admin-panel>#canonicalSettings~*{display:none!important}
+#canonicalSettings{min-width:0}
+#canonicalSettings .admin-page-head{margin-bottom:14px}
+#canonicalSettings .admin-message{margin:0 0 12px;padding:9px 12px;border-radius:9px;background:var(--green-bg);color:var(--green);font-size:12px;font-weight:650}
+#canonicalSettings .admin-message.error{background:var(--red-bg);color:var(--red)}
+#canonicalSettings .admin-message[hidden]{display:none}
+#canonicalSettings .fg>label{display:block;margin-bottom:5px;color:var(--ink-2);font-size:12px;font-weight:650}
+#canonicalSettings .fg>input,#canonicalSettings .fg>select{width:100%;height:38px;border:1px solid var(--line-2);border-radius:9px;background:var(--surface);padding:0 11px;color:var(--ink)}
+#canonicalSettings .admin-avatar{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--brand);color:#fff;font-weight:800}
+#canonicalSettings .admin-view-row{margin:10px 20px}
+#canonicalSettings .imp-body{padding:18px 20px}
+#canonicalSettings .imp-step{padding:16px;border:1px solid var(--line);border-radius:12px}
+#canonicalSettings .imp-step h5{margin:0 0 10px}
+#canonicalSettings .imp-step h5 b{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;margin-right:8px;background:var(--brand);color:#fff}
+#canonicalSettings .admin-mobile-close{display:none}
+@media(min-width:900px){
+  .settings-workspace{padding:18px 22px 40px}
+  .settings-workspace .admin-panel{display:block;width:100%;max-width:none;min-height:0;margin:0;border:0;border-radius:0;box-shadow:none;background:transparent;padding:0;overflow:visible}
+  .settings-workspace #canonicalSettings{display:block}
+}
+@media(max-width:899px){
+  .settings-workspace{padding:14px 12px 94px}
+  .settings-workspace .admin-panel{display:block;width:100%;max-width:none;min-height:0;margin:0;border:0;border-radius:0;box-shadow:none;background:transparent;padding:0;overflow:visible}
+  .settings-workspace #canonicalSettings{display:block}
+  #canonicalSettings .admin-mobile-close{display:none}
+  #canonicalSettings .set-wrap{display:block}
+  #canonicalSettings .set-menu{display:flex;position:static;overflow-x:auto;gap:4px;margin-bottom:10px;padding:6px}
+  #canonicalSettings .set-menu h6{display:none}
+  #canonicalSettings .set-menu .nav-item{flex:0 0 auto;width:auto}
+  #canonicalSettings .user-row{grid-template-columns:32px minmax(0,1fr) auto}
+  #canonicalSettings .user-row .u-email{grid-column:2/-1;grid-row:2}
+  #canonicalSettings .perm-table{font-size:12px}
+}
