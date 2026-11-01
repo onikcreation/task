@@ -39,13 +39,14 @@ export function createSupabaseRepository(client){
     async getPermissions(){const actions=['add','edit','status','delete','export','settings'];const values=await Promise.all(actions.map(async action=>{const {data,error}=await client.rpc('has_permission',{requested_action:action});fail(error);return [action,Boolean(data)]}));return Object.fromEntries(values)},
     async getSpecialViews(){const {data,error}=await client.from('app_settings').select('key,value').in('key',['views','specialViews']);fail(error);const rows=data||[],preferred=rows.find(row=>row.key==='views')||rows.find(row=>row.key==='specialViews');return Array.isArray(preferred?.value)?preferred.value:[]},
     async getDashboard(){
-      const now=new Date(),start=new Date(now.getFullYear(),now.getMonth(),1),[dashboard,rows]=await Promise.all([
+      const now=new Date(),start=new Date(now.getFullYear(),now.getMonth(),1),[dashboard,rows,openPriorityRows]=await Promise.all([
         client.rpc('get_task_dashboard'),
-        client.from('tasks').select('created_at').eq('is_deleted',false).gte('created_at',start.toISOString()).lte('created_at',now.toISOString())
+        client.from('tasks').select('created_at,status').eq('is_deleted',false).gte('created_at',start.toISOString()).lte('created_at',now.toISOString()),
+        client.from('tasks').select('priority').eq('is_deleted',false).in('status',['Pending','Task Added'])
       ]);fail(dashboard.error);fail(rows.error);
-      const counts=new Map();for(const row of rows.data||[]){const date=new Date(row.created_at);if(!Number.isNaN(date.getTime()))counts.set(date.getDate(),(counts.get(date.getDate())||0)+1)}
-      const byDay=Array.from({length:now.getDate()},(_,index)=>({label:String(index+1),date:`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(index+1).padStart(2,'0')}`,count:counts.get(index+1)||0}));
-      return {...(dashboard.data||{}),byDay};
+      const counts=new Map();for(const row of rows.data||[]){const date=new Date(row.created_at);if(Number.isNaN(date.getTime()))continue;const day=date.getDate(),item=counts.get(day)||{count:0,done:0,open:0,other:0};item.count++;if(row.status==='Done')item.done++;else if(['Pending','Task Added'].includes(row.status))item.open++;else item.other++;counts.set(day,item)}
+      const byDay=Array.from({length:now.getDate()},(_,index)=>({label:String(index+1),date:`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(index+1).padStart(2,'0')}`,...(counts.get(index+1)||{count:0,done:0,open:0,other:0})}));
+      fail(openPriorityRows.error);const byOpenPriority={};for(const row of openPriorityRows.data||[]){const key=row.priority||'Unspecified';byOpenPriority[key]=(byOpenPriority[key]||0)+1}return {...(dashboard.data||{}),byDay,byOpenPriority};
     },
     async getActivity(includeAdmin=false){
       const taskRequest=client.from('task_logs').select('id,source_task_id,actor_name,action,message,changes,created_at,recorded_at').order('recorded_at',{ascending:false}).limit(100);
@@ -57,9 +58,13 @@ export function createSupabaseRepository(client){
     },
     async getAdminUsers(){const {data,error}=await client.from('user_access').select('email,display_name,role,is_active,updated_at').order('display_name',{ascending:true}).order('email',{ascending:true});fail(error);return data||[]},
     async getAdminLists(){const {data,error}=await client.from('app_settings').select('value').eq('key','lists').single();fail(error);return data?.value||{}},
+    async getAdminGeneral(){const {data,error}=await client.from('app_settings').select('value').eq('key','general').maybeSingle();fail(error);return data?.value||{}},
+    async getAdminPermissions(){const {data,error}=await client.from('role_permissions').select('role,action,allowed').in('role',['Editor','Viewer']).order('role').order('action');fail(error);const result={Editor:{},Viewer:{}};for(const row of data||[])result[row.role][row.action]=Boolean(row.allowed);return result},
     async getAdminAudit(){const {data,error}=await client.from('admin_audit_logs').select('id,actor_email,action,target,changes,created_at').order('created_at',{ascending:false}).limit(50);fail(error);return data||[]},
     async updateAdminUser(email,role,isActive){const {data,error}=await client.rpc('admin_update_user_access',{target_email:email,new_role:role,new_is_active:isActive});fail(error);return Array.isArray(data)?data[0]:data},
     async updateAdminList(listName,items){const {data,error}=await client.rpc('admin_update_list_setting',{list_name:listName,items});fail(error);return Array.isArray(data)?data[0]:data},
+    async updateAdminGeneral(value){const {data,error}=await client.rpc('admin_update_general_setting',{new_value:value});fail(error);const row=Array.isArray(data)?data[0]:data;return row?.value||value},
+    async updateAdminPermissions(value){const {data,error}=await client.rpc('admin_update_role_permissions',{new_permissions:value});fail(error);return data||value},
     async updateAdminSpecialViews(views){const {data,error}=await client.rpc('admin_update_special_views',{views});fail(error);return data||[]},
     async updateAdminDesign(defaultPreset,allowUserOverride){const {data,error}=await client.rpc('admin_update_design_setting',{new_default:defaultPreset,new_allow_user_override:allowUserOverride});fail(error);const row=Array.isArray(data)?data[0]:data,value=row?.value||{};return {defaultPreset:value.defaultPreset||defaultPreset,allowUserOverride:value.allowUserOverride!==false}},
     async createTask(payload){const {data,error}=await client.rpc('create_task',{payload});fail(error);return one(data)},

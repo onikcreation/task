@@ -8,8 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./css/app.css?v=20261101-25">
-  <link rel="stylesheet" href="./css/supabase.css?v=20261101-25">
+  <link rel="stylesheet" href="./css/app.css?v=20261101-38">
+  <link rel="stylesheet" href="./css/supabase.css?v=20261101-36">
 </head>
 <body>
   <a class="skip-link" href="#taskList">কাজের তালিকায় যান</a>
@@ -24,14 +24,15 @@
       <input id="searchInput" type="search" placeholder="Search task, menu, reg/pin…" autocomplete="off">
       <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
       <kbd>/</kbd>
+      <button class="s-clear hidden" id="desktopSearchClear" type="button" aria-label="সার্চ মুছুন"><svg class="ico sm" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
     </label>
     <span class="spacer"></span>
     <div class="top-actions">
-      <button class="lang-btn" id="adminButton" type="button" hidden><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21h-4v-.1A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3v-4h.1A1.7 1.7 0 0 0 4.6 8.6a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3h4v.1A1.7 1.7 0 0 0 15.4 4.6a1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0 0 19.4 9c.1.4.3.7.6 1 .3.2.7.4 1.1.4h.1v4h-.1c-.4 0-.8.2-1.1.6-.3.2-.5.6-.6 1z"/></svg><span>Admin</span></button>
       <button class="lang-btn" id="themeButton" type="button" aria-label="রঙের মোড বদলান"><svg class="ico" viewBox="0 0 24 24"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5 8.5 8.5 0 1 0 20.5 14.5z"/></svg><span>Dark</span></button>
-      <button class="user-chip account-chip" id="accountButton" type="button" aria-label="অ্যাকাউন্ট"><span class="avatar">A</span></button>
+      <button class="user-chip account-chip" id="accountButton" type="button" aria-label="অ্যাকাউন্ট"><span class="avatar" id="topAccountInitial">A</span><span class="uinfo"><b id="topAccountName">Public</b><small id="topAccountRole">Viewer</small></span></button>
     </div>
   </header>
+  <div class="user-menu hidden" id="userMenu" aria-label="অ্যাকাউন্ট মেনু"></div>
   <div class="demo-strip" id="liveStrip"><span>Supabase Live · অনুমোদিত ব্যবহারকারী Task যোগ ও আপডেট করতে পারবেন</span><button type="button" aria-label="বার্তাটি বন্ধ করুন">×</button></div>
 
   <div class="shell">
@@ -43,6 +44,7 @@
       <button class="nav-item" type="button" data-workspace="dashboard"><svg class="ico" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Dashboard</span></button>
       <button class="nav-item" type="button" data-workspace="activity"><svg class="ico" viewBox="0 0 24 24"><path d="M4 19V5M4 19h16M8 15l3-3 3 2 5-6"/></svg><span>Activity</span></button>
       <h6 id="sidebarActionsLabel" hidden>Actions</h6>
+      <button class="nav-item" id="adminButton" type="button" hidden><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21h-4v-.1A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3v-4h.1A1.7 1.7 0 0 0 4.6 8.6a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3h4v.1A1.7 1.7 0 0 0 15.4 4.6a1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0 0 19.4 9c.1.4.3.7.6 1 .3.2.7.4 1.1.4h.1v4h-.1c-.4 0-.8.2-1.1.6-.3.2-.5.6-.6 1z"/></svg><span>Settings</span></button>
       <button class="nav-item" id="sidebarDeleted" type="button" data-side-view="deleted" hidden><svg class="ico" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M6 6l1 15h10l1-15"/></svg><span>Deleted</span></button>
       <div class="side-card"><strong>Last sync</strong><p>Supabase থেকে task, dashboard ও activity live আপডেট হয়।</p><button type="button" id="sidebarRefresh">Refresh</button></div>
     </aside>
@@ -59,6 +61,7 @@
       <label class="msearch">
         <input id="mobileSearchInput" class="qinput" type="search" placeholder="Search task, menu, reg/pin…" autocomplete="off">
         <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <button class="s-clear hidden" id="mobileSearchClear" type="button" aria-label="সার্চ মুছুন"><svg class="ico sm" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
       </label>
       <div class="msum" id="mobileSummary"></div>
 
@@ -74,9 +77,9 @@
           <button class="pchip" type="button" data-quick-date="lastmonth">Last Month</button>
         </div>
         <button class="tbtn" id="desktopFilterButton" type="button" aria-expanded="false"><svg class="ico sm" viewBox="0 0 24 24"><path d="M4 5h16M7 12h10M10 19h4"/></svg><span>Filter</span></button>
-        <span class="sel gsel"><select id="groupSelect" aria-label="Group by"><option value="">Group By: None</option><option value="taskType">Group By: Task Type</option><option value="priority">Group By: Priority</option><option value="platform">Group By: Platform</option></select><svg class="ico sm" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></span>
         <span class="sel status-select"><select id="statusFilter" aria-label="Status"><option value="">All Status</option></select><svg class="ico sm" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></span>
         <span class="sel"><select id="sortSelect" aria-label="Sort"><option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="priority">Priority</option></select><svg class="ico sm" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></span>
+        <span class="sel gsel"><select id="groupSelect" aria-label="Group by"><option value="">Group By: None</option><option value="taskType">Group By: Task Type</option><option value="priority">Group By: Priority</option><option value="platform">Group By: Platform</option></select><svg class="ico sm" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></span>
         <span class="mobile-date-select sel"><select id="dateFilter" aria-label="Entry Date"><option value="all">All Time</option><option value="today">Today</option><option value="yesterday">Yesterday</option><option value="week">This Week</option><option value="month">This Month</option><option value="lastmonth">Last Month</option><option value="custom">Date Range…</option></select><svg class="ico sm" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></span>
         <button class="tbtn export-button" id="exportButton" type="button" hidden aria-label="Export XLSX">↓ Excel</button>
       </div>
@@ -112,16 +115,8 @@
     </section>
     </div>
 
-    <section class="insight-section" id="dashboardSection" hidden aria-labelledby="dashboardTitle">
-      <header class="insight-head"><div><p class="eyebrow">Live insights</p><h1 id="dashboardTitle">Dashboard</h1><p>সক্রিয় Task-এর status, priority, platform ও সাম্প্রতিক মাসের চিত্র।</p></div><button class="cancel-button compact" id="dashboardRefresh" type="button">Refresh</button></header>
-      <div class="dashboard-kpis" id="dashboardKpis"></div>
-      <div class="dashboard-grid">
-        <article class="chart-card"><h2>Status</h2><div class="bar-chart" id="statusChart"></div></article>
-        <article class="chart-card"><h2>Priority</h2><div class="bar-chart" id="priorityChart"></div></article>
-        <article class="chart-card"><h2>Platform</h2><div class="bar-chart" id="platformChart"></div></article>
-        <article class="chart-card"><h2>Last 12 months</h2><div class="bar-chart" id="monthChart"></div></article>
-        <article class="chart-card chart-card-wide"><h2>এই মাসে প্রতিদিনের এন্ট্রি</h2><div class="bar-chart day-chart" id="dayChart"></div></article>
-      </div>
+      <section id="dashboardSection" hidden aria-labelledby="dashboardTitle">
+        <div id="dashboardContent"><div class="empty">Dashboard লোড হচ্ছে…</div></div>
     </section>
 
     <section class="insight-section" id="activitySection" hidden aria-labelledby="activityTitle">
@@ -129,6 +124,7 @@
       <label class="activity-filter"><span>Activity</span><select id="activityFilter"><option value="all">All activity</option><option value="task">Task only</option><option value="admin">Admin only</option></select></label>
       <div class="activity-list" id="activityList"><div class="empty">Activity লোড হচ্ছে…</div></div>
     </section>
+    <section class="settings-workspace" id="settingsSection" hidden aria-labelledby="adminDialogTitle"></section>
   </main>
   </div>
 
@@ -137,7 +133,7 @@
     <button id="bottomDashboard" type="button" data-workspace="dashboard"><svg class="ico" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Dashboard</span></button>
     <button class="bn-add" id="bottomNewButton" type="button" disabled><span><svg class="ico" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span><small>New</small></button>
     <button type="button" id="bottomTheme"><svg class="ico" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z"/></svg><span>Theme</span></button>
-    <button id="bottomActivity" type="button" data-workspace="activity"><svg class="ico" viewBox="0 0 24 24"><path d="M5 6h14M5 12h14M5 18h14"/></svg><span>Activity</span></button>
+    <button id="bottomFilter" type="button"><svg class="ico" viewBox="0 0 24 24"><path d="M3 5h18M6 12h12M10 19h4"/></svg><span>Filter</span></button>
   </nav>
 
   <dialog class="auth-dialog" id="authDialog" aria-labelledby="authTitle">
@@ -149,6 +145,8 @@
       <p class="auth-copy">অনুমোদিত email দিন। Supabase আপনার email-এ একটি নিরাপদ magic link পাঠাবে।</p>
       <label class="auth-field"><span>Email</span><input id="loginEmail" type="email" autocomplete="email" required placeholder="name@example.com"></label>
       <button class="auth-submit" id="loginButton" type="submit">Magic link পাঠান</button>
+      <button class="auth-submit secondary language-action" id="loginLanguageButton" type="button">English ভার্সন</button>
+      <button class="auth-submit secondary" id="loginThemeButton" type="button">Theme &amp; Layout</button>
       <p class="auth-message" id="authMessage" role="status" aria-live="polite"></p>
     </form>
     <section class="auth-card account-card" id="accountPanel" hidden>
@@ -156,6 +154,10 @@
       <div class="auth-mark" id="accountInitial" aria-hidden="true">A</div>
       <p class="eyebrow">Signed in</p><h2 id="accountName">Account</h2>
       <p class="auth-copy" id="accountEmail"></p><span class="role-pill" id="accountRole">Viewer</span>
+      <button class="auth-submit secondary language-action" id="accountLanguageButton" type="button">English ভার্সন</button>
+      <button class="auth-submit secondary account-theme-action" id="accountThemeButton" type="button">Theme &amp; Layout</button>
+      <button class="auth-submit secondary account-admin-action" id="accountAdminButton" type="button" hidden>Settings &amp; Users</button>
+      <button class="auth-submit secondary" id="accountActivityButton" type="button">Activity Log</button>
       <button class="auth-submit secondary" id="logoutButton" type="button">Sign out</button>
     </section>
   </dialog>
@@ -196,10 +198,25 @@
 
   <dialog class="task-detail-dialog" id="taskDetailDialog" aria-labelledby="taskDetailTitle">
     <article class="task-detail-panel">
-      <header class="task-detail-head"><div><p class="eyebrow" id="taskDetailId">Task</p><h2 id="taskDetailTitle">Task details</h2></div><button class="dialog-close" id="taskDetailClose" type="button" aria-label="বন্ধ করুন">×</button></header>
-      <div id="taskDetailBody"></div>
-      <section class="history-section"><p class="eyebrow">History</p><div class="history-list" id="taskHistoryList"><div class="empty">History লোড হচ্ছে…</div></div></section>
-      <footer class="task-detail-actions"><button class="cancel-button" id="taskDetailDone" type="button">Close</button><button class="auth-submit detail-edit" id="taskDetailEdit" type="button">Edit Task</button></footer>
+      <header class="task-detail-head">
+        <button class="detail-icon-button" id="taskDetailClose" type="button" aria-label="বন্ধ করুন">×</button>
+        <div class="task-detail-identity"><h2 class="mono" id="taskDetailId">Task</h2><small id="taskDetailSubId">Task details</small></div>
+        <nav class="task-detail-nav" aria-label="Task navigation"><button class="detail-icon-button" id="taskDetailPrev" type="button" aria-label="আগের task">‹</button><span id="taskDetailPosition">1 / 1</span><button class="detail-icon-button" id="taskDetailNext" type="button" aria-label="পরের task">›</button></nav>
+      </header>
+      <div class="task-detail-scroll">
+        <h2 class="task-detail-title" id="taskDetailTitle">Task details</h2>
+        <div class="task-detail-badges" id="taskDetailBadges"></div>
+        <div class="task-detail-layout">
+          <main class="task-detail-main">
+            <section><p class="detail-section-title">Status</p><div class="detail-status-row" id="taskDetailStatus"></div></section>
+            <section><p class="detail-section-title">Details</p><div class="detail-copy" id="taskDetailCopy"></div></section>
+            <section><p class="detail-section-title">▢ Discussed With</p><div id="taskDetailDiscussions"></div><div class="detail-discussion-form"><input id="taskDiscussionName" list="personOptions" placeholder="Discussed with"><input id="taskDiscussionDate" type="date"><input id="taskDiscussionNote" placeholder="Note (optional)"><button class="cancel-button" id="taskDiscussionAdd" type="button">＋ Add discussion</button></div></section>
+            <section class="detail-optional" id="taskDetailOptional"></section>
+          </main>
+          <aside class="task-detail-side"><section><p class="detail-section-title">Info</p><div class="detail-fields" id="taskDetailFields"></div></section><section><p class="detail-section-title">↻ History</p><div class="history-list" id="taskHistoryList"><div class="empty">History লোড হচ্ছে…</div></div></section></aside>
+        </div>
+      </div>
+      <footer class="task-detail-actions"><button class="auth-submit detail-edit" id="taskDetailEdit" type="button">✎ Edit</button><button class="cancel-button" id="taskDetailCopyTeams" type="button">▣ Copy for Teams</button><span class="detail-action-spacer"></span><button class="cancel-button" id="taskDetailDone" type="button">Close</button></footer>
     </article>
   </dialog>
 
@@ -223,34 +240,36 @@
 
   <dialog class="theme-dialog" id="themeDialog" aria-labelledby="themeDialogTitle">
     <section class="theme-panel">
-      <header class="task-editor-head"><div><p class="eyebrow">Appearance</p><h2 id="themeDialogTitle">Theme & Layout</h2></div><button class="dialog-close" id="themeClose" type="button" aria-label="বন্ধ করুন">×</button></header>
-      <div class="theme-grid">
-        <label class="theme-preset-field"><span>Design preset</span><select id="themePreset"><option value="admin">Admin default</option><option value="calm">01 — Calm Command</option><option value="compact">02 — Compact Ops</option><option value="editorial">03 — Editorial Focus</option><option value="edge">04 — Edge Control</option><option value="timeline">05 — Timeline Flow</option><option value="midnight">06 — Midnight Grid</option></select><small id="themePresetHint">Admin-এর নির্ধারিত design অথবা নিজের পছন্দ ব্যবহার করুন।</small></label>
-        <label><span>Mode</span><select id="themeMode"><option value="light">Light</option><option value="dark">Dark</option><option value="system">System</option></select></label>
-        <label><span>Accent</span><select id="themeAccent"><option value="indigo">Indigo</option><option value="violet">Violet</option><option value="blue">Blue</option><option value="teal">Teal</option></select></label>
-        <label><span>Task color</span><select id="themeTint"><option value="line">Left line</option><option value="soft">Soft background</option><option value="frame">Color frame</option><option value="urgent">Urgent only</option></select></label>
-        <label><span>Density</span><select id="themeDensity"><option value="comfortable">Comfortable</option><option value="compact">Compact</option></select></label>
-        <label><span>Text size</span><select id="themeSize"><option value="normal">Normal</option><option value="large">Large</option></select></label>
-        <label><span>Group style</span><select id="themeGroup"><option value="line">Heading line</option><option value="panel">Separate panel</option></select></label>
-        <label><span>Mobile layout</span><select id="themeMobile"><option value="summary">Summary</option><option value="tiles">Legacy tiles</option></select></label>
-        <label><span>Card marker</span><select id="themeMarker"><option value="priority">Priority</option><option value="status">Status</option><option value="off">Off</option></select></label>
-      </div>
-      <footer class="task-editor-actions"><button class="cancel-button" id="themeReset" type="button">Default-এ ফেরত</button><button class="auth-submit save-task" id="themeDone" type="button">Done</button></footer>
+      <div id="themeContent"></div>
     </section>
   </dialog>
 
   <dialog class="admin-dialog" id="adminDialog" aria-labelledby="adminDialogTitle">
     <section class="admin-panel">
-      <header class="admin-head"><div><p class="eyebrow">Administration</p><h2 id="adminDialogTitle">Settings & Users</h2></div><button class="dialog-close" id="adminClose" type="button" aria-label="বন্ধ করুন">×</button></header>
+      <header class="admin-head"><div><p class="eyebrow">Administration</p><h2 id="adminDialogTitle">Settings</h2></div><button class="dialog-close" id="adminClose" type="button" aria-label="বন্ধ করুন">×</button></header>
       <nav class="admin-tabs" aria-label="Admin sections">
-        <button class="admin-tab active" type="button" data-admin-section="users">Users</button>
-        <button class="admin-tab" type="button" data-admin-section="lists">Lists</button>
+        <h6>General</h6>
+        <button class="admin-tab active" type="button" data-admin-section="general">App settings</button>
         <button class="admin-tab" type="button" data-admin-section="views">Special Tabs</button>
-        <button class="admin-tab" type="button" data-admin-section="designs">Designs</button>
+        <h6>Option lists</h6>
+        <button class="admin-tab" type="button" data-admin-section="lists">Dropdown lists</button>
+        <h6>Access</h6>
+        <button class="admin-tab" type="button" data-admin-section="users">Users &amp; roles</button>
+        <button class="admin-tab" type="button" data-admin-section="permissions">Role permissions</button>
         <button class="admin-tab" type="button" data-admin-section="audit">Audit</button>
       </nav>
       <div class="admin-message" id="adminMessage" role="status" aria-live="polite"></div>
-      <section class="admin-section" id="adminUsersSection">
+      <section class="admin-section" id="adminGeneralSection">
+        <div class="admin-section-head"><div><h3>App settings</h3><p>App identity, default language ও page size.</p></div></div>
+        <div class="admin-general-grid">
+          <label class="admin-field"><span>App name</span><input id="adminAppName" value="Task Tracker"></label>
+          <label class="admin-field"><span>Subtitle</span><input id="adminAppSub" value="UUU ERP Team"></label>
+          <label class="admin-field"><span>Page size</span><select id="adminPageSize"><option>30</option><option selected>60</option><option>100</option><option>200</option></select></label>
+          <label class="admin-field"><span>Default language</span><select id="adminDefaultLanguage"><option value="bn">বাংলা</option><option value="en">English</option></select></label>
+        </div>
+        <div class="admin-actions"><button class="auth-submit" id="adminGeneralSave" type="button">Save app settings</button></div>
+      </section>
+      <section class="admin-section" id="adminUsersSection" hidden>
         <div class="admin-section-head"><div><h3>Approved Users</h3><p>Role ও active access পরিবর্তন করুন। নিজের Admin access বন্ধ করা যাবে না।</p></div><button class="cancel-button compact" id="adminUsersRefresh" type="button">Refresh</button></div>
         <div class="admin-user-list" id="adminUserList"><div class="empty">Users লোড হচ্ছে…</div></div>
       </section>
@@ -269,17 +288,16 @@
         <div class="admin-view-list" id="adminViewList"></div>
         <div class="admin-actions"><button class="auth-submit" id="adminViewsSave" type="button">Save Special Tabs</button></div>
       </section>
-      <section class="admin-section" id="adminDesignsSection" hidden>
-        <div class="admin-section-head"><div><h3>Design Presets</h3><p>ছয়টি responsive design থেকে সবার জন্য default নির্বাচন করুন। Preview শুধু এই browser-এ সাময়িকভাবে দেখাবে।</p></div><button class="cancel-button compact" id="adminDesignResetPreview" type="button">Exit Preview</button></div>
-        <div class="design-preset-grid" id="adminDesignList" role="radiogroup" aria-label="Default design preset"></div>
-        <label class="admin-design-override"><input type="checkbox" id="adminDesignOverride"> ব্যবহারকারীরা Theme & Layout থেকে নিজের design বেছে নিতে পারবে</label>
-        <div class="admin-actions"><button class="auth-submit" id="adminDesignSave" type="button">Save Default Design</button></div>
+      <section class="admin-section" id="adminPermissionsSection" hidden>
+        <div class="admin-section-head"><div><h3>Role permissions</h3><p>Editor ও Viewer কোন action করতে পারবেন তা নির্ধারণ করুন। Admin সব permission পান।</p></div></div>
+        <div class="permission-matrix" id="adminPermissionMatrix"></div>
+        <div class="admin-actions"><button class="auth-submit" id="adminPermissionsSave" type="button">Save permissions</button></div>
       </section>
     </section>
   </dialog>
 
-  <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script type="module" src="./js/app.js?v=20261101-25"></script>
+  <div class="toast" id="toast" role="status" aria-live="polite" popover="manual"></div>
+  <script type="module" src="./js/app.js?v=20261101-38"></script>
 </body>
 </html>
 
