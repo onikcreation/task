@@ -8,41 +8,46 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./css/app.css?v=20261101-24">
+  <link rel="stylesheet" href="./css/app.css?v=20261101-25">
+  <link rel="stylesheet" href="./css/supabase.css?v=20261101-25">
 </head>
 <body>
   <a class="skip-link" href="#taskList">কাজের তালিকায় যান</a>
   <header class="topbar">
-    <button class="brand" id="homeButton" type="button" aria-label="Task Tracker হোম">
-      <span class="brand-mark" aria-hidden="true"><svg class="legacy-icon" viewBox="0 0 24 24"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>
-      <span class="brand-copy"><strong>Task Tracker</strong><small id="connectionBadge">Supabase</small></span>
+    <button class="logo" id="homeButton" type="button" aria-label="Task Tracker হোম">
+      <span class="logo-mark" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>
+      <span><strong>Task Tracker</strong><small id="connectionBadge">Supabase</small></span>
+      <span class="demo-badge">Live</span>
     </button>
-    <button class="primary-button header-new" id="newTaskButton" type="button" disabled title="Live connection-এর পরে চালু হবে"><svg class="legacy-icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span>New Task</span></button>
-    <label class="search-box global-search">
-      <svg class="legacy-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <button class="btn-new" id="newTaskButton" type="button" disabled title="Live connection-এর পরে চালু হবে"><svg class="ico" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span>New Task</span></button>
+    <label class="gsearch">
       <input id="searchInput" type="search" placeholder="Search task, menu, reg/pin…" autocomplete="off">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
       <kbd>/</kbd>
     </label>
-    <span class="topbar-spacer"></span>
+    <span class="spacer"></span>
     <div class="top-actions">
-      <button class="admin-button" id="adminButton" type="button" hidden><svg class="legacy-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21h-4v-.1A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3v-4h.1A1.7 1.7 0 0 0 4.6 8.6a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3h4v.1A1.7 1.7 0 0 0 15.4 4.6a1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0 0 19.4 9c.1.4.3.7.6 1 .3.2.7.4 1.1.4h.1v4h-.1c-.4 0-.8.2-1.1.6-.3.2-.5.6-.6 1z"/></svg><span>Admin</span></button>
-      <button class="icon-button" id="themeButton" type="button" aria-label="রঙের মোড বদলান"><svg class="legacy-icon" viewBox="0 0 24 24"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5 8.5 8.5 0 1 0 20.5 14.5z"/></svg></button>
-      <button class="avatar" id="accountButton" type="button" aria-label="অ্যাকাউন্ট">A</button>
+      <button class="lang-btn" id="adminButton" type="button" hidden><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21h-4v-.1A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3v-4h.1A1.7 1.7 0 0 0 4.6 8.6a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3h4v.1A1.7 1.7 0 0 0 15.4 4.6a1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0 0 19.4 9c.1.4.3.7.6 1 .3.2.7.4 1.1.4h.1v4h-.1c-.4 0-.8.2-1.1.6-.3.2-.5.6-.6 1z"/></svg><span>Admin</span></button>
+      <button class="lang-btn" id="themeButton" type="button" aria-label="রঙের মোড বদলান"><svg class="ico" viewBox="0 0 24 24"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5 8.5 8.5 0 1 0 20.5 14.5z"/></svg><span>Dark</span></button>
+      <button class="user-chip account-chip" id="accountButton" type="button" aria-label="অ্যাকাউন্ট"><span class="avatar">A</span></button>
     </div>
   </header>
+  <div class="demo-strip" id="liveStrip"><span>Supabase Live · অনুমোদিত ব্যবহারকারী Task যোগ ও আপডেট করতে পারবেন</span><button type="button" aria-label="বার্তাটি বন্ধ করুন">×</button></div>
 
-  <div class="legacy-shell">
-    <aside class="legacy-side" aria-label="প্রধান নেভিগেশন">
+  <div class="shell">
+    <aside class="side" aria-label="প্রধান নেভিগেশন">
       <h6>Tasks</h6>
       <div id="legacySideStats"></div>
       <div id="legacySpecialTabs"></div>
       <h6>Analysis</h6>
-      <button class="legacy-nav" type="button" data-workspace="dashboard"><svg class="legacy-icon" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Dashboard</span></button>
-      <button class="legacy-nav" type="button" data-workspace="activity"><svg class="legacy-icon" viewBox="0 0 24 24"><path d="M4 19V5M4 19h16M8 15l3-3 3 2 5-6"/></svg><span>Activity</span></button>
-      <div class="legacy-side-card"><strong>Last sync</strong><p>Supabase থেকে task, dashboard ও activity live আপডেট হয়।</p><button type="button" id="sidebarRefresh">Refresh</button></div>
+      <button class="nav-item" type="button" data-workspace="dashboard"><svg class="ico" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Dashboard</span></button>
+      <button class="nav-item" type="button" data-workspace="activity"><svg class="ico" viewBox="0 0 24 24"><path d="M4 19V5M4 19h16M8 15l3-3 3 2 5-6"/></svg><span>Activity</span></button>
+      <h6 id="sidebarActionsLabel" hidden>Actions</h6>
+      <button class="nav-item" id="sidebarDeleted" type="button" data-side-view="deleted" hidden><svg class="ico" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M6 6l1 15h10l1-15"/></svg><span>Deleted</span></button>
+      <div class="side-card"><strong>Last sync</strong><p>Supabase থেকে task, dashboard ও activity live আপডেট হয়।</p><button type="button" id="sidebarRefresh">Refresh</button></div>
     </aside>
 
-  <main class="page-shell">
+  <main>
 
     <nav class="workspace-nav" aria-label="প্রধান পেজ">
       <button class="workspace-button active" type="button" data-workspace="tasks">Tasks</button>
@@ -51,26 +56,29 @@
     </nav>
 
     <div id="tasksWorkspace">
+      <label class="msearch">
+        <input id="mobileSearchInput" class="qinput" type="search" placeholder="Search task, menu, reg/pin…" autocomplete="off">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      </label>
+      <div class="msum" id="mobileSummary"></div>
 
-    <section class="legacy-desktop-head" aria-label="Task list controls">
+    <section class="ph desktop-head" aria-label="Task list controls">
       <div><h1><span id="legacyListTitle">Pending</span> <strong id="legacyPendingCount">0</strong></h1><p>Waiting + Task Added — এখনো শেষ হয়নি এমন সব কাজ</p></div>
-      <div class="legacy-controls">
-        <div class="legacy-period" role="group" aria-label="Entry date quick filter">
-          <button class="active" type="button" data-quick-date="all">All Time</button>
-          <button type="button" data-quick-date="today">Today</button>
-          <button type="button" data-quick-date="yesterday">Yesterday</button>
-          <button type="button" data-quick-date="week">This Week</button>
-          <button type="button" data-quick-date="month">This Month</button>
-          <button type="button" data-quick-date="lastmonth">Last Month</button>
+      <div class="toolbar">
+        <div class="period" role="group" aria-label="Entry date quick filter">
+          <button class="pchip on" type="button" data-quick-date="all">All Time</button>
+          <button class="pchip" type="button" data-quick-date="today">Today</button>
+          <button class="pchip" type="button" data-quick-date="yesterday">Yesterday</button>
+          <button class="pchip" type="button" data-quick-date="week">This Week</button>
+          <button class="pchip" type="button" data-quick-date="month">This Month</button>
+          <button class="pchip" type="button" data-quick-date="lastmonth">Last Month</button>
         </div>
-        <button class="legacy-filter-button" id="desktopFilterButton" type="button" aria-expanded="false"><svg class="legacy-icon" viewBox="0 0 24 24"><path d="M4 5h16M7 12h10M10 19h4"/></svg><span>Filter</span></button>
-        <section class="toolbar" aria-label="তালিকা নিয়ন্ত্রণ">
-          <label class="date-select"><span>Entry Date</span><select id="dateFilter"><option value="all">All Time</option><option value="today">Today</option><option value="yesterday">Yesterday</option><option value="week">This Week</option><option value="month">This Month</option><option value="lastmonth">Last Month</option><option value="custom">Date Range…</option></select></label>
-          <label><span>Group By</span><select id="groupSelect"><option value="">None</option><option value="taskType">Task Type</option><option value="priority">Priority</option><option value="platform">Platform</option></select></label>
-          <label class="status-select"><span>Status</span><select id="statusFilter"><option value="">All Status</option></select></label>
-          <label><span>Sort</span><select id="sortSelect"><option value="newest">Newest</option><option value="oldest">Oldest</option><option value="priority">Priority</option></select></label>
-        </section>
-        <button class="export-button legacy-export-button" id="exportButton" type="button" hidden aria-label="Export XLSX">↓ Excel</button>
+        <button class="tbtn" id="desktopFilterButton" type="button" aria-expanded="false"><svg class="ico sm" viewBox="0 0 24 24"><path d="M4 5h16M7 12h10M10 19h4"/></svg><span>Filter</span></button>
+        <span class="sel gsel"><select id="groupSelect" aria-label="Group by"><option value="">Group By: None</option><option value="taskType">Group By: Task Type</option><option value="priority">Group By: Priority</option><option value="platform">Group By: Platform</option></select><svg class="ico sm" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></span>
+        <span class="sel status-select"><select id="statusFilter" aria-label="Status"><option value="">All Status</option></select><svg class="ico sm" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></span>
+        <span class="sel"><select id="sortSelect" aria-label="Sort"><option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="priority">Priority</option></select><svg class="ico sm" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></span>
+        <span class="mobile-date-select sel"><select id="dateFilter" aria-label="Entry Date"><option value="all">All Time</option><option value="today">Today</option><option value="yesterday">Yesterday</option><option value="week">This Week</option><option value="month">This Month</option><option value="lastmonth">Last Month</option><option value="custom">Date Range…</option></select><svg class="ico sm" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></span>
+        <button class="tbtn export-button" id="exportButton" type="button" hidden aria-label="Export XLSX">↓ Excel</button>
       </div>
     </section>
 
@@ -83,13 +91,13 @@
       <div class="progress-track" aria-hidden="true"><span id="progressFill"></span></div>
     </section>
 
-    <nav class="saved-tabs" aria-label="Task views">
-      <button class="tab active" type="button" data-view="pending">Open Tasks</button>
+    <nav class="tabs" aria-label="Task views">
+      <button class="tab active" type="button" data-view="pending" data-tab="open"><span class="tl"><i class="cdot" style="--c:#4338ca"></i><span>Pending</span></span><span class="n" id="pendingTabCount">0</span></button>
       <span id="specialTabs"></span>
       <button class="tab" id="deletedTab" type="button" data-view="deleted" hidden>Deleted</button>
     </nav>
 
-    <section class="date-range-bar" id="dateRangeBar" aria-label="Custom date range" hidden>
+    <section class="date-bar" id="dateRangeBar" aria-label="Custom date range" hidden>
       <label><span>From</span><input id="dateFrom" type="date"></label>
       <label><span>To</span><input id="dateTo" type="date"></label>
       <span class="date-range-count" id="dateRangeCount">০টি task</span>
@@ -97,8 +105,8 @@
     </section>
 
     <section class="list-section" aria-labelledby="listTitle">
-      <div class="list-title-row"><div><p class="eyebrow">Task list</p><h2 id="listTitle">Open Tasks</h2></div><div class="list-actions"><span id="resultCount">0টি</span></div></div>
-      <div class="legacy-list-head" aria-hidden="true"><span>Task</span><span>Priority</span><span>Status</span><span>Platform</span><span>Issued by</span><span>Entry</span><span>Date</span></div>
+      <div class="list-title-row"><div><p class="eyebrow">Task list</p><h2><span id="listTitle">Pending</span> <span class="cnt" id="mobileListCount">0</span></h2></div><div class="list-actions"><span id="resultCount">0টি</span></div></div>
+      <div class="list-head" aria-hidden="true"><span>Task</span><span>Priority</span><span>Status</span><span>Platform</span><span>Issued by</span><span>Entry</span><span>Date</span></div>
       <div class="task-list" id="taskList" aria-live="polite"></div>
       <button class="load-more" id="loadMoreButton" type="button">আরও দেখুন</button>
     </section>
@@ -124,12 +132,12 @@
   </main>
   </div>
 
-  <nav class="bottom-nav" aria-label="মোবাইল প্রধান মেনু">
-    <button class="active" id="bottomTasks" type="button" data-workspace="tasks"><svg class="legacy-icon" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg><span>Tasks</span></button>
-    <button id="bottomDashboard" type="button" data-workspace="dashboard"><svg class="legacy-icon" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Dashboard</span></button>
-    <button class="new" id="bottomNewButton" type="button" disabled><i><svg class="legacy-icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></i><span>New</span></button>
-    <button type="button" id="bottomTheme"><svg class="legacy-icon" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z"/></svg><span>Theme</span></button>
-    <button id="bottomActivity" type="button" data-workspace="activity"><svg class="legacy-icon" viewBox="0 0 24 24"><path d="M5 6h14M5 12h14M5 18h14"/></svg><span>Activity</span></button>
+  <nav class="bottomnav" aria-label="মোবাইল প্রধান মেনু">
+    <button class="active" id="bottomTasks" type="button" data-workspace="tasks"><svg class="ico" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg><span>Tasks</span></button>
+    <button id="bottomDashboard" type="button" data-workspace="dashboard"><svg class="ico" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Dashboard</span></button>
+    <button class="bn-add" id="bottomNewButton" type="button" disabled><span><svg class="ico" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span><small>New</small></button>
+    <button type="button" id="bottomTheme"><svg class="ico" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z"/></svg><span>Theme</span></button>
+    <button id="bottomActivity" type="button" data-workspace="activity"><svg class="ico" viewBox="0 0 24 24"><path d="M5 6h14M5 12h14M5 18h14"/></svg><span>Activity</span></button>
   </nav>
 
   <dialog class="auth-dialog" id="authDialog" aria-labelledby="authTitle">
@@ -271,7 +279,7 @@
   </dialog>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script type="module" src="./js/app.js?v=20261101-24"></script>
+  <script type="module" src="./js/app.js?v=20261101-25"></script>
 </body>
 </html>
 
