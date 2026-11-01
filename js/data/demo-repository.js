@@ -26,7 +26,8 @@ export function createDemoRepository(){
     async getActivity(){return SAMPLE.slice(0,6).map((task,index)=>({id:index,kind:'task',action:'demo_activity',target:task.id,actor:'Demo',message:task.title,at:task.createdAt}))},
     async getSummary(){
       const pending=SAMPLE.filter(t=>['Pending','Task Added'].includes(t.status));
-      return {pending:pending.length,urgent:pending.filter(t=>t.priority==='Urgent').length,waiting:pending.filter(t=>t.status==='Pending').length,added:pending.filter(t=>t.status==='Task Added').length,total:SAMPLE.length,statuses:[...new Set(SAMPLE.map(t=>t.status))]};
+      const statuses=[...new Set(SAMPLE.map(t=>t.status))],statusCounts=Object.fromEntries(statuses.map(status=>[status,SAMPLE.filter(t=>t.status===status).length]));
+      return {pending:pending.length,urgent:pending.filter(t=>t.priority==='Urgent').length,waiting:pending.filter(t=>t.status==='Pending').length,added:pending.filter(t=>t.status==='Task Added').length,total:SAMPLE.length,statuses,statusCounts};
     },
     async listTasks(query={}){
       let rows=SAMPLE.slice();
@@ -35,6 +36,7 @@ export function createDemoRepository(){
       if(query.view==='liton')rows=rows.filter(t=>t.approvedBy.includes('Liton Vai'));
       if(query.specialView){const condition=query.specialView.condition||query.specialView.cond||{};const list=value=>Array.isArray(value)?value:[value];if(condition.taskType||condition.type)rows=rows.filter(t=>list(condition.taskType||condition.type).includes(t.taskType));if(condition.person)rows=rows.filter(t=>list(condition.person).some(person=>t.approvedBy.includes(person)));if(condition.status)rows=rows.filter(t=>list(condition.status).includes(t.status));if(condition.priority)rows=rows.filter(t=>list(condition.priority).includes(t.priority));if(condition.platform)rows=rows.filter(t=>list(condition.platform).includes(t.platform))}
       if(query.status)rows=rows.filter(t=>t.status===query.status);
+      if(query.priority)rows=rows.filter(t=>t.priority===query.priority);
       if(query.search)rows=rows.filter(t=>text(t).includes(query.search.toLowerCase()));
       const now=new Date(),start=new Date(now),end=new Date(now);start.setHours(0,0,0,0);end.setHours(23,59,59,999);
       if(query.date==='today')rows=rows.filter(t=>new Date(t.createdAt)>=start&&new Date(t.createdAt)<=end);

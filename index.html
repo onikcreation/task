@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./css/app.css?v=20261101-18">
+  <link rel="stylesheet" href="./css/app.css?v=20261101-24">
 </head>
 <body>
   <a class="skip-link" href="#taskList">কাজের তালিকায় যান</a>
@@ -33,15 +33,13 @@
 
   <div class="legacy-shell">
     <aside class="legacy-side" aria-label="প্রধান নেভিগেশন">
-      <h6>Workspace</h6>
-      <button class="legacy-nav active" type="button" data-workspace="tasks"><svg class="legacy-icon" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg><span>Tasks</span></button>
+      <h6>Tasks</h6>
+      <div id="legacySideStats"></div>
+      <div id="legacySpecialTabs"></div>
+      <h6>Analysis</h6>
       <button class="legacy-nav" type="button" data-workspace="dashboard"><svg class="legacy-icon" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Dashboard</span></button>
       <button class="legacy-nav" type="button" data-workspace="activity"><svg class="legacy-icon" viewBox="0 0 24 24"><path d="M4 19V5M4 19h16M8 15l3-3 3 2 5-6"/></svg><span>Activity</span></button>
-      <h6>Quick access</h6>
-      <button class="legacy-nav" type="button" data-side-view="pending"><i class="legacy-dot dot-open"></i><span>Open Tasks</span></button>
-      <button class="legacy-nav" type="button" data-side-view="all"><i class="legacy-dot dot-all"></i><span>All Tasks</span></button>
-      <div class="legacy-side-stats" id="legacySideStats"></div>
-      <div class="legacy-side-card"><strong>UUU Task Tracker</strong><p>Task, Dashboard ও Activity—সব তথ্য এখন Supabase থেকে live আপডেট হয়।</p></div>
+      <div class="legacy-side-card"><strong>Last sync</strong><p>Supabase থেকে task, dashboard ও activity live আপডেট হয়।</p><button type="button" id="sidebarRefresh">Refresh</button></div>
     </aside>
 
   <main class="page-shell">
@@ -56,13 +54,23 @@
 
     <section class="legacy-desktop-head" aria-label="Task list controls">
       <div><h1><span id="legacyListTitle">Pending</span> <strong id="legacyPendingCount">0</strong></h1><p>Waiting + Task Added — এখনো শেষ হয়নি এমন সব কাজ</p></div>
-      <div class="legacy-period" role="group" aria-label="Entry date quick filter">
-        <button class="active" type="button" data-quick-date="all">All Time</button>
-        <button type="button" data-quick-date="today">Today</button>
-        <button type="button" data-quick-date="yesterday">Yesterday</button>
-        <button type="button" data-quick-date="week">This Week</button>
-        <button type="button" data-quick-date="month">This Month</button>
-        <button type="button" data-quick-date="lastmonth">Last Month</button>
+      <div class="legacy-controls">
+        <div class="legacy-period" role="group" aria-label="Entry date quick filter">
+          <button class="active" type="button" data-quick-date="all">All Time</button>
+          <button type="button" data-quick-date="today">Today</button>
+          <button type="button" data-quick-date="yesterday">Yesterday</button>
+          <button type="button" data-quick-date="week">This Week</button>
+          <button type="button" data-quick-date="month">This Month</button>
+          <button type="button" data-quick-date="lastmonth">Last Month</button>
+        </div>
+        <button class="legacy-filter-button" id="desktopFilterButton" type="button" aria-expanded="false"><svg class="legacy-icon" viewBox="0 0 24 24"><path d="M4 5h16M7 12h10M10 19h4"/></svg><span>Filter</span></button>
+        <section class="toolbar" aria-label="তালিকা নিয়ন্ত্রণ">
+          <label class="date-select"><span>Entry Date</span><select id="dateFilter"><option value="all">All Time</option><option value="today">Today</option><option value="yesterday">Yesterday</option><option value="week">This Week</option><option value="month">This Month</option><option value="lastmonth">Last Month</option><option value="custom">Date Range…</option></select></label>
+          <label><span>Group By</span><select id="groupSelect"><option value="">None</option><option value="taskType">Task Type</option><option value="priority">Priority</option><option value="platform">Platform</option></select></label>
+          <label class="status-select"><span>Status</span><select id="statusFilter"><option value="">All Status</option></select></label>
+          <label><span>Sort</span><select id="sortSelect"><option value="newest">Newest</option><option value="oldest">Oldest</option><option value="priority">Priority</option></select></label>
+        </section>
+        <button class="export-button legacy-export-button" id="exportButton" type="button" hidden aria-label="Export XLSX">↓ Excel</button>
       </div>
     </section>
 
@@ -81,13 +89,6 @@
       <button class="tab" id="deletedTab" type="button" data-view="deleted" hidden>Deleted</button>
     </nav>
 
-    <section class="toolbar" aria-label="তালিকা নিয়ন্ত্রণ">
-      <label><span>Entry Date</span><select id="dateFilter"><option value="all">All Time</option><option value="today">Today</option><option value="yesterday">Yesterday</option><option value="week">This Week</option><option value="month">This Month</option><option value="lastmonth">Last Month</option><option value="custom">Date Range…</option></select></label>
-      <label><span>Group By</span><select id="groupSelect"><option value="">None</option><option value="taskType">Task Type</option><option value="priority">Priority</option><option value="platform">Platform</option></select></label>
-      <label><span>Status</span><select id="statusFilter"><option value="">All Status</option></select></label>
-      <label><span>Sort</span><select id="sortSelect"><option value="newest">Newest</option><option value="oldest">Oldest</option><option value="priority">Priority</option></select></label>
-    </section>
-
     <section class="date-range-bar" id="dateRangeBar" aria-label="Custom date range" hidden>
       <label><span>From</span><input id="dateFrom" type="date"></label>
       <label><span>To</span><input id="dateTo" type="date"></label>
@@ -96,7 +97,7 @@
     </section>
 
     <section class="list-section" aria-labelledby="listTitle">
-      <div class="list-title-row"><div><p class="eyebrow">Task list</p><h2 id="listTitle">Open Tasks</h2></div><div class="list-actions"><span id="resultCount">0টি</span><button class="export-button" id="exportButton" type="button" hidden>↓ Export XLSX</button></div></div>
+      <div class="list-title-row"><div><p class="eyebrow">Task list</p><h2 id="listTitle">Open Tasks</h2></div><div class="list-actions"><span id="resultCount">0টি</span></div></div>
       <div class="legacy-list-head" aria-hidden="true"><span>Task</span><span>Priority</span><span>Status</span><span>Platform</span><span>Issued by</span><span>Entry</span><span>Date</span></div>
       <div class="task-list" id="taskList" aria-live="polite"></div>
       <button class="load-more" id="loadMoreButton" type="button">আরও দেখুন</button>
@@ -270,7 +271,7 @@
   </dialog>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script type="module" src="./js/app.js?v=20261101-18"></script>
+  <script type="module" src="./js/app.js?v=20261101-24"></script>
 </body>
 </html>
 

@@ -15,6 +15,9 @@ export async function loadConfig() {
   };
   const publicConfig=await readJson('./app-config.public.json');
   const localConfig=await readJson('./app-config.local.json');
-  return {...DEFAULT_CONFIG,...publicConfig,...(globalThis.APP_CONFIG||{}),...localConfig};
+  const merged={...DEFAULT_CONFIG,...publicConfig,...(globalThis.APP_CONFIG||{}),...localConfig};
+  const url=new URL(globalThis.location?.href||'http://localhost/');
+  const localQa=['localhost','127.0.0.1'].includes(url.hostname)&&url.searchParams.get('qaDemo')==='1';
+  return localQa?{...merged,dataMode:'demo',supabaseUrl:'',supabasePublishableKey:''}:merged;
 }
 

@@ -31,7 +31,8 @@ export function createSupabaseRepository(client){
       ]);
       fail(settings.error);const rawStatuses=settings.data?.value?.status||['Pending','Task Added','Backlog','Done','Canceled'];
       const statuses=rawStatuses.map(item=>typeof item==='string'?item:item?.name).filter((name,index)=>name&&(typeof rawStatuses[index]==='string'||rawStatuses[index]?.active!==false));
-      return {pending,urgent,waiting,added,total,statuses};
+      const statusCounts=Object.fromEntries(await Promise.all(statuses.map(async status=>[status,await count(active().eq('status',status))])));
+      return {pending,urgent,waiting,added,total,statuses,statusCounts};
     },
     async getOptions(){const {data,error}=await client.from('app_settings').select('value').eq('key','lists').single();fail(error);const value=data?.value||{};return {priority:names(value.priority),status:names(value.status),taskType:names(value.type),platform:names(value.platform),department:names(value.dept),person:names(value.person),actionStatus:names(value.action),progress:names(value.progress),module:names(value.module)}},
     async getDesignSettings(){const {data,error}=await client.from('app_settings').select('value').eq('key','design').maybeSingle();fail(error);const value=data?.value||{};return {defaultPreset:value.defaultPreset||'calm',allowUserOverride:value.allowUserOverride!==false}},
@@ -74,6 +75,7 @@ export function createSupabaseRepository(client){
       if(query.view==='liton')request=request.or('approved_by.cs.{"Liton Vai"},issued_person.ilike.%Liton Vai%');
       if(query.specialView)request=applySpecialView(request,query.specialView);
       if(query.status)request=request.eq('status',query.status);
+      if(query.priority)request=request.eq('priority',query.priority);
       const search=cleanSearch(query.search);if(search)request=request.or(`source_task_id.ilike.%${search}%,task_no.ilike.%${search}%,title.ilike.%${search}%,details.ilike.%${search}%,menu_path.ilike.%${search}%,reg_pin.ilike.%${search}%`);
       const now=new Date(),start=new Date(now),end=new Date(now);start.setHours(0,0,0,0);end.setHours(23,59,59,999);
       if(query.date==='today')request=request.gte('created_at',start.toISOString()).lte('created_at',end.toISOString());
